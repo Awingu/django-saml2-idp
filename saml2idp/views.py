@@ -18,6 +18,9 @@ import metadata
 import registry
 import xml_signing
 
+from saml2idp import logger
+
+
 def _generate_response(request, processor):
     """
     Generate a SAML response using processor and return it in the proper Django
@@ -48,7 +51,7 @@ def login_begin(request, *args, **kwargs):
     # Store these values now, because Django's login cycle won't preserve them.
     request.session['SAMLRequest'] = source['SAMLRequest']
     request.session['RelayState'] = source['RelayState']
-    
+
     return redirect('idp_login_process')
 
 @login_required
@@ -81,7 +84,7 @@ def login_process(request):
     """
     #reg = registry.ProcessorRegistry()
     logging.debug("Request: %s" % request)
-    
+
     proc = registry.find_processor(request)
     return _generate_response(request, proc)
 
