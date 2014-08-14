@@ -18,35 +18,35 @@ NOTE #3: I'm now leaning towards using lxml's E factory to do some of this.
 """
 SIGNED_INFO = (
     '<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
-        '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:CanonicalizationMethod>'
-        '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>'
+        '<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:CanonicalizationMethod>'  # noqa
+        '<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></ds:SignatureMethod>'  # noqa
         '<ds:Reference URI="#${REFERENCE_URI}">'
             '<ds:Transforms>'
-                '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform>'
-                '<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:Transform>'
+                '<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"></ds:Transform>'  # noqa
+                '<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"></ds:Transform>'  # noqa
             '</ds:Transforms>'
-            '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>'
+            '<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></ds:DigestMethod>'  # noqa
             '<ds:DigestValue>${SUBJECT_DIGEST}</ds:DigestValue>'
         '</ds:Reference>'
     '</ds:SignedInfo>'
 )
 SIGNATURE = (
     '<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
-        '${SIGNED_INFO}'
+        '${SIGNED_INFO}'  # noqa
     '<ds:SignatureValue>${RSA_SIGNATURE}</ds:SignatureValue>'
     '<ds:KeyInfo>'
         '<ds:X509Data>'
-            '<ds:X509Certificate>${CERTIFICATE}</ds:X509Certificate>'
+            '<ds:X509Certificate>${CERTIFICATE}</ds:X509Certificate>'  # noqa
         '</ds:X509Data>'
     '</ds:KeyInfo>'
-'</ds:Signature>'
+    '</ds:Signature>'
 )
 
 # Attributes and AttributeStatement
 
 ATTRIBUTE = (
     '<saml:Attribute Name="${ATTRIBUTE_NAME}">'
-        '<saml:AttributeValue>${ATTRIBUTE_VALUE}</saml:AttributeValue>'
+        '<saml:AttributeValue>${ATTRIBUTE_VALUE}</saml:AttributeValue>'  # noqa
     '</saml:Attribute>'
 )
 
@@ -59,13 +59,13 @@ ATTRIBUTE_STATEMENT = (
 # Subject
 SUBJECT = (
     '<saml:Subject>'
-        '<saml:NameID Format="${SUBJECT_FORMAT}" SPNameQualifier="${SP_NAME_QUALIFIER}">'
+        '<saml:NameID Format="${SUBJECT_FORMAT}" SPNameQualifier="${SP_NAME_QUALIFIER}">'  # noqa
         '${SUBJECT}'
         '</saml:NameID>'
-        '<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">'
-            '<saml:SubjectConfirmationData '
+        '<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">'  # noqa
+            '<saml:SubjectConfirmationData '  # noqa
             '${IN_RESPONSE_TO}'
-            'NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'
+            'NotOnOrAfter="${NOT_ON_OR_AFTER}" Recipient="${ACS_URL}"></saml:SubjectConfirmationData>'  # noqa
         '</saml:SubjectConfirmation>'
     '</saml:Subject>'
 )
@@ -73,18 +73,18 @@ SUBJECT = (
 # Minimal assertion for Google Apps:
 ASSERTION_GOOGLE_APPS = (
     '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
-            'ID="${ASSERTION_ID}" '
+            'ID="${ASSERTION_ID}" '  # noqa
             'IssueInstant="${ISSUE_INSTANT}" '
             'Version="2.0">'
-        '<saml:Issuer>${ISSUER}</saml:Issuer>'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'  # noqa
         '${ASSERTION_SIGNATURE}'
         '${SUBJECT_STATEMENT}'
-        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'  # noqa
         '</saml:Conditions>'
         '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
             '>'
             '<saml:AuthnContext>'
-                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'  # noqa
             '</saml:AuthnContext>'
         '</saml:AuthnStatement>'
         '${ATTRIBUTE_STATEMENT}'
@@ -94,21 +94,21 @@ ASSERTION_GOOGLE_APPS = (
 # Minimal assertion for SalesForce:
 ASSERTION_SALESFORCE = (
     '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
-            'ID="${ASSERTION_ID}" '
+            'ID="${ASSERTION_ID}" '  # noqa
             'IssueInstant="${ISSUE_INSTANT}" '
             'Version="2.0">'
-        '<saml:Issuer>${ISSUER}</saml:Issuer>'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'  # noqa
         '${ASSERTION_SIGNATURE}'
         '${SUBJECT_STATEMENT}'
-        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'  # noqa
             '<saml:AudienceRestriction>'
-                '<saml:Audience>${AUDIENCE}</saml:Audience>'
+                '<saml:Audience>${AUDIENCE}</saml:Audience>'  # noqa
             '</saml:AudienceRestriction>'
         '</saml:Conditions>'
         '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
             '>'
             '<saml:AuthnContext>'
-                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'  # noqa
             '</saml:AuthnContext>'
         '</saml:AuthnStatement>'
         '${ATTRIBUTE_STATEMENT}'
@@ -118,39 +118,63 @@ ASSERTION_SALESFORCE = (
 # Minimal assertion for Zendesk:
 ASSERTION_ZENDESK = (
     '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
-            'ID="${ASSERTION_ID}" '
+            'ID="${ASSERTION_ID}" '  # noqa
             'IssueInstant="${ISSUE_INSTANT}" '
             'Version="2.0">'
-        '<saml:Issuer>${ISSUER}</saml:Issuer>'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'  # noqa
         '${ASSERTION_SIGNATURE}'
         '${SUBJECT_STATEMENT}'
-        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'  # noqa
             '<saml:AudienceRestriction>'
-                '<saml:Audience>${AUDIENCE}</saml:Audience>'
+                '<saml:Audience>${AUDIENCE}</saml:Audience>'  # noqa
             '</saml:AudienceRestriction>'
         '</saml:Conditions>'
         '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
             '>'
             '<saml:AuthnContext>'
-                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'  # noqa
             '</saml:AuthnContext>'
         '</saml:AuthnStatement>'
         '${ATTRIBUTE_STATEMENT}'
     '</saml:Assertion>'
 )
 
+# Minimal assertion for Microsoft Azure:
+ASSERTION_AZURE = (
+    '<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
+            'ID="${ASSERTION_ID}" '  # noqa
+            'IssueInstant="${ISSUE_INSTANT}" '
+            'Version="2.0">'
+        '<saml:Issuer>${ISSUER}</saml:Issuer>'  # noqa
+        '${ASSERTION_SIGNATURE}'
+        '${SUBJECT_STATEMENT}'
+        '<saml:Conditions NotBefore="${NOT_BEFORE}" NotOnOrAfter="${NOT_ON_OR_AFTER}">'  # noqa
+            '<saml:AudienceRestriction>'
+                '<saml:Audience>${AUDIENCE}</saml:Audience>'  # noqa
+            '</saml:AudienceRestriction>'
+        '</saml:Conditions>'
+        '<saml:AuthnStatement AuthnInstant="${AUTH_INSTANT}"'
+            '>'
+            '<saml:AuthnContext>'
+                '<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>'  # noqa
+            '</saml:AuthnContext>'
+        '</saml:AuthnStatement>'
+        '${ATTRIBUTE_STATEMENT}'
+    '</saml:Assertion>'
+ )
+
 # Minimal response:
 RESPONSE = (
     '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" '
-                    'Destination="${ACS_URL}" '
+                    'Destination="${ACS_URL}" '  # noqa
                     'ID="${RESPONSE_ID}" '
                     '${IN_RESPONSE_TO}'
                     'IssueInstant="${ISSUE_INSTANT}" '
                     'Version="2.0">'
-        '<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${ISSUER}</saml:Issuer>'
+        '<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">${ISSUER}</saml:Issuer>'  # noqa
         '${RESPONSE_SIGNATURE}'
         '<samlp:Status>'
-            '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>'
+            '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"></samlp:StatusCode>'  # noqa
         '</samlp:Status>'
         '${ASSERTION}'
     '</samlp:Response>'

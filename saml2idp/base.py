@@ -3,9 +3,10 @@ import base64
 import logging
 import time
 import uuid
+
 # Django and other library imports:
 from BeautifulSoup import BeautifulStoneSoup
-from django.core.exceptions import ImproperlyConfigured
+
 # local app imports:
 import codex
 import exceptions
@@ -15,13 +16,16 @@ import xml_render
 MINUTES = 60
 HOURS = 60 * MINUTES
 
+
 def get_random_id():
-    #NOTE: It is very important that these random IDs NOT start with a number.
+    # NOTE: It is very important that these random IDs NOT start with a number.
     random_id = '_' + uuid.uuid4().hex
     return random_id
 
+
 def get_time_string(delta=0):
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime(time.time() + delta))
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                         time.gmtime(time.time() + delta))
 
 
 class Processor(object):
@@ -48,11 +52,11 @@ class Processor(object):
 
         self._assertion_params = {
             'ASSERTION_ID': self._assertion_id,
-            'ASSERTION_SIGNATURE': '', # it's unsigned
+            'ASSERTION_SIGNATURE': '',  # it's unsigned
             'AUDIENCE': self._audience,
             'AUTH_INSTANT': get_time_string(),
             'ISSUE_INSTANT': get_time_string(),
-            'NOT_BEFORE': get_time_string(-1 * HOURS), #TODO: Make these settings.
+            'NOT_BEFORE': get_time_string(-1 * HOURS),  # TODO: Make config.
             'NOT_ON_OR_AFTER': get_time_string(15 * MINUTES),
             'SESSION_INDEX': self._session_index,
             'SESSION_NOT_ON_OR_AFTER': get_time_string(8 * HOURS),
@@ -72,7 +76,7 @@ class Processor(object):
             'ASSERTION': self._assertion_xml,
             'ISSUE_INSTANT': get_time_string(),
             'RESPONSE_ID': self._response_id,
-            'RESPONSE_SIGNATURE': '', # initially unsigned
+            'RESPONSE_SIGNATURE': '',  # initially unsigned
         }
         self._response_params.update(self._system_params)
         self._response_params.update(self._request_params)
@@ -135,8 +139,9 @@ class Processor(object):
         """
         Formats _response_params as _response_xml.
         """
-        sign_it=saml2idp_metadata.SAML2IDP_CONFIG['signing']
-        self._response_xml = xml_render.get_response_xml(self._response_params, signed=sign_it)
+        sign_it = saml2idp_metadata.SAML2IDP_CONFIG['signing']
+        self._response_xml = xml_render.get_response_xml(
+            self._response_params, signed=sign_it)
 
     def _get_django_response_params(self):
         """
@@ -154,11 +159,11 @@ class Processor(object):
         """
         Parses various parameters from _request_xml into _request_params.
         """
-        #Minimal test to verify that it's not binarily encoded still:
+        # Minimal test to verify that it's not binarily encoded still:
         if not self._request_xml.strip().startswith('<'):
-            badXML = self._request_xml
             raise Exception('RequestXML is not valid XML; '
                             'it may need to be decoded or decompressed.')
+
         soup = BeautifulStoneSoup(self._request_xml)
         request = soup.findAll()[0]
         params = {}
@@ -187,7 +192,8 @@ class Processor(object):
         self._saml_request = None
         self._saml_response = None
         self._subject = None
-        self._subject_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
+        self._subject_format = \
+            'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
         self._system_params = {
             'ISSUER': saml2idp_metadata.SAML2IDP_CONFIG['issuer'],
         }
@@ -195,22 +201,24 @@ class Processor(object):
 
     def _validate_request(self):
         """
-        Validates the _saml_request. By default, simply verifies that the ACS_URL
-        is valid, according to settings. Sub-classes should override this and
-        throw a CannotHandleAssertion Exception if the validation does not succeed.
+        Validates the _saml_request.
+        By default, simply verifies that the ACS_URL is valid, according to
+        settings. Sub-classes should override this and throw a
+        CannotHandleAssertion Exception if the validation does not succeed.
         """
         acs_url = self._request_params['ACS_URL']
         for name, sp_config in saml2idp_metadata.SAML2IDP_REMOTES.items():
             if acs_url == sp_config['acs_url']:
                 self._sp_config = sp_config
                 return
-        msg = "Could not find ACS url '%s' in SAML2IDP_REMOTES setting." % acs_url
+        msg = "Could not find ACS url '%s' in SAML2IDP_REMOTES setting." % \
+            acs_url
         raise exceptions.CannotHandleAssertion(msg)
 
     def _validate_user(self):
         """
-        Validates the User. Sub-classes should override this and
-        throw an CannotHandleAssertion Exception if the validation does not succeed.
+        Validates the User. Sub-classes should override this and throw an
+        CannotHandleAssertion Exception if the validation does not succeed.
         """
         pass
 
@@ -234,7 +242,8 @@ class Processor(object):
 
     def generate_response(self):
         """
-        Processes request and returns template variables suitable for a response.
+        Processes request and returns template variables suitable for a
+        response.
         """
         # Build the assertion and response.
         self._validate_user()
@@ -257,9 +266,10 @@ class Processor(object):
         # NOTE: The following request params are made up. Some are blank,
         # because they comes over in the AuthnRequest, but we don't have an
         # AuthnRequest in this case:
-        # - Destination: Should be this IdP's SSO endpoint URL. Not used in the response?
+        # - Destination: Should be this IdP's SSO endpoint URL. Not used in
+        #                the response?
         # - ProviderName: According to the spec, this is optional.
-        provider_name = ''
+
         self._request_params = {
             'ACS_URL': acs_url,
             'DESTINATION': '',

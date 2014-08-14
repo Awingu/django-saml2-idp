@@ -5,7 +5,9 @@ import logging
 import string
 from xml_signing import get_signature_xml
 from xml_templates import ATTRIBUTE, ATTRIBUTE_STATEMENT, \
-    ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, ASSERTION_ZENDESK, RESPONSE, SUBJECT
+    ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, ASSERTION_ZENDESK, \
+    ASSERTION_AZURE, RESPONSE, SUBJECT
+
 
 def _get_attribute_statement(params):
     """
@@ -22,7 +24,7 @@ def _get_attribute_statement(params):
     template = string.Template(ATTRIBUTE)
     attr_list = []
     for name, value in attributes.items():
-        subs = { 'ATTRIBUTE_NAME': name, 'ATTRIBUTE_VALUE': value }
+        subs = {'ATTRIBUTE_NAME': name, 'ATTRIBUTE_VALUE': value}
         one = template.substitute(subs)
         attr_list.append(one)
     params['ATTRIBUTES'] = ''.join(attr_list)
@@ -31,12 +33,13 @@ def _get_attribute_statement(params):
     statement = stmt_template.substitute(params)
     params['ATTRIBUTE_STATEMENT'] = statement
 
+
 def _get_in_response_to(params):
     """
     Insert InResponseTo if we have a RequestID.
     Modifies the params dict.
     """
-    #NOTE: I don't like this. We're mixing templating logic here, but the
+    # NOTE: I don't like this. We're mixing templating logic here, but the
     # current design requires this; maybe refactor using better templates, or
     # just bite the bullet and use elementtree to produce the XML; see comments
     # in xml_templates about Canonical XML.
@@ -46,6 +49,7 @@ def _get_in_response_to(params):
     else:
         params['IN_RESPONSE_TO'] = ''
 
+
 def _get_subject(params):
     """
     Insert Subject.
@@ -53,6 +57,7 @@ def _get_subject(params):
     """
     template = string.Template(SUBJECT)
     params['SUBJECT_STATEMENT'] = template.substitute(params)
+
 
 def _get_assertion_xml(template, parameters, signed=False):
     # Reset signature.
@@ -62,7 +67,7 @@ def _get_assertion_xml(template, parameters, signed=False):
     template = string.Template(template)
 
     _get_in_response_to(params)
-    _get_subject(params) # must come before _get_attribute_statement()
+    _get_subject(params)  # must come before _get_attribute_statement()
     _get_attribute_statement(params)
 
     unsigned = template.substitute(params)
@@ -80,14 +85,22 @@ def _get_assertion_xml(template, parameters, signed=False):
     logging.debug(signed)
     return signed
 
+
 def get_assertion_googleapps_xml(parameters, signed=False):
     return _get_assertion_xml(ASSERTION_GOOGLE_APPS, parameters, signed)
+
 
 def get_assertion_salesforce_xml(parameters, signed=False):
     return _get_assertion_xml(ASSERTION_SALESFORCE, parameters, signed)
 
+
 def get_assertion_zendesk_xml(parameters, signed=False):
     return _get_assertion_xml(ASSERTION_ZENDESK, parameters, signed)
+
+
+def get_assertion_azure_xml(parameters, signed=False):
+    return _get_assertion_xml(ASSERTION_AZURE, parameters, signed)
+
 
 def get_response_xml(parameters, signed=False):
     """

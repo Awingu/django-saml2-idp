@@ -1,10 +1,10 @@
 """
 Tests for the demo AttributeProcessor and IdP-initiated deep-linking.
 """
-# standard library imports:
-import base64
+
 # local imports:
 import base
+
 
 class TestDeepLink(base.SamlTestCase):
     SP_CONFIG = {
@@ -21,8 +21,10 @@ class TestDeepLink(base.SamlTestCase):
         # Arrange/Act:
         self._hit_saml_view(self.DEEPLINK)
         # Assert:
-        relaystate = self._html_soup.findAll('input', {'name':'RelayState'})[0]
+        relaystate = self._html_soup.findAll('input',
+                                             {'name': 'RelayState'})[0]
         self.assertEqual(self.EXPECTED_RELAY_STATE, relaystate['value'])
+
 
 class TestDeepLinkWithAttributes(TestDeepLink):
     SP_CONFIG = {

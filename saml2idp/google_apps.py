@@ -3,9 +3,10 @@ import codex
 import exceptions
 import xml_render
 
+
 class Processor(base.Processor):
     """
-    SalesForce.com-specific SAML 2.0 AuthnRequest to Response Handler Processor.
+    Google Apps specific SAML 2.0 AuthnRequest to Response Handler Processor.
     """
     def _decode_request(self):
         """
@@ -19,8 +20,10 @@ class Processor(base.Processor):
         throw an Exception if the validation does not succeed.
         """
         super(Processor, self)._validate_request()
-        if not '.google.com/a/' in self._request_params['ACS_URL']:
-            raise exceptions.CannotHandleAssertion('AssertionConsumerService is not a Google Apps URL.')
+        if '.google.com/a/' not in self._request_params['ACS_URL']:
+            raise exceptions.CannotHandleAssertion(
+                'AssertionConsumerService is not a Google Apps URL.')
 
     def _format_assertion(self):
-        self._assertion_xml = xml_render.get_assertion_googleapps_xml(self._assertion_params, signed=True)
+        self._assertion_xml = xml_render.get_assertion_googleapps_xml(
+            self._assertion_params, signed=True)
