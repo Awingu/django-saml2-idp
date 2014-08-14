@@ -30,6 +30,7 @@ SIGNED_INFO = (
         '</ds:Reference>'
     '</ds:SignedInfo>'
 )
+
 SIGNATURE = (
     '<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">'
         '${SIGNED_INFO}'  # noqa
