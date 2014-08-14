@@ -8,7 +8,6 @@ which should be put in another test module.
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.client import Client
 from .. import exceptions
 
 
@@ -25,20 +24,21 @@ class TestLoginView(TestCase):
         """
         GET request without SAMLResponse data should have failed.
         """
-        self.assertRaises(KeyError, lambda : self.client.get('/idp/login/'))
+        self.assertRaises(KeyError, lambda: self.client.get('/idp/login/'))
 
     def test_empty_post(self):
         """
         POST request without SAMLResponse data should have failed.
         """
-        self.assertRaises(KeyError, lambda : self.client.post('/idp/login/'))
+        self.assertRaises(KeyError, lambda: self.client.post('/idp/login/'))
 
     def _test_pre_redirect(self):
-        self.assertFalse(self.client.session.has_key('SAMLRequest'))
-        self.assertFalse(self.client.session.has_key('RelayState'))
+        self.assertFalse('SAMLRequest' in self.client.session)
+        self.assertFalse('RelayState' in self.client.session)
 
     def _test_redirect(self, response):
-        self.assertEquals(response.status_code, HttpResponseRedirect.status_code)
+        self.assertEquals(response.status_code,
+                          HttpResponseRedirect.status_code)
         self.assertTrue(response['location'].endswith('/idp/login/process/'))
         self.assertEqual(self.client.session['SAMLRequest'], SAML_REQUEST)
         self.assertEqual(self.client.session['RelayState'], RELAY_STATE)
@@ -68,7 +68,9 @@ class TestLoginProcessView(TestCase):
         """
 
         # Arrange: login new user and setup session variables.
-        fred = User.objects.create_user('fred', email='fred@example.com', password='secret')
+        User.objects.create_user('fred',
+                                 email='fred@example.com',
+                                 password='secret')
         self.client.login(username='fred', password='secret')
         session = self.client.session
         session['RelayState'] = RELAY_STATE
@@ -76,8 +78,9 @@ class TestLoginProcessView(TestCase):
         session.save()
 
         # Act and assert:
-        func = lambda : self.client.get('/idp/login/process/')
+        func = lambda: self.client.get('/idp/login/process/')
         self.assertRaises(exceptions.CannotHandleAssertion, func)
+
 
 class TestLogoutView(TestCase):
     def test_logout(self):
@@ -91,8 +94,16 @@ class TestLogoutView(TestCase):
         """
         User account not logged out.
         """
-        fred = User.objects.create_user('fred', email='fred@example.com', password='secret')
+        User.objects.create_user('fred',
+                                 email='fred@example.com',
+                                 password='secret')
+
         self.client.login(username='fred', password='secret')
-        self.assertTrue('_auth_user_id' in self.client.session, 'Did not login test user; test is broken.')
-        response = self.client.get('/idp/logout/')
-        self.assertTrue('_auth_user_id' not in self.client.session, 'Did not logout test user.')
+
+        self.assertTrue('_auth_user_id' in self.client.session,
+                        'Did not login test user; test is broken.')
+
+        self.client.get('/idp/logout/')
+
+        self.assertTrue('_auth_user_id' not in self.client.session,
+                        'Did not logout test user.')

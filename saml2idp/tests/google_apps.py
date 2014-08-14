@@ -18,19 +18,23 @@ SAML_REQUEST = codex.deflate_and_base64_encode(
     '<samlp:NameIDPolicy AllowCreate="true" '
     'Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" />'
     '</samlp:AuthnRequest>'
-    )
+)
+
 RELAY_STATE = (
     'https://www.google.com/a/example.com/ServiceLogin'
     '?service=writely&passive=true'
     '&continue=https%3A%2F%2Fdocs.google.com%2Fa%2Fexample.com%2F'
     '&followup=https%3A%2F%2Fdocs.google.com%2Fa%2Fexample.com%2F'
     '&ltmpl=homepage'
-    )
+)
+
 REQUEST_DATA = {
     'SAMLRequest': SAML_REQUEST,
     'RelayState': RELAY_STATE,
 }
+
 GOOGLE_APPS_ACS = 'https://www.google.com/a/example.com/acs'
+
 
 class TestGoogleAppsProcessor(base.TestBaseProcessor):
     SP_CONFIG = {

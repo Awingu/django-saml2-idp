@@ -1,15 +1,12 @@
 """
 Tests for the Base Processor class.
 """
-import base64
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
-from django.http import HttpResponseRedirect
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from .. import codex
-from .. import exceptions
 from .. import saml2idp_metadata
+
 
 class SamlTestCase(TestCase):
     """
@@ -22,12 +19,13 @@ class SamlTestCase(TestCase):
     EMAIL = 'fred@example.com'
 
     def setUp(self):
-        fred = User.objects.create_user(self.USERNAME, email=self.EMAIL, password=self.PASSWORD)
+        self.fred = User.objects.create_user(self.USERNAME,
+                                             email=self.EMAIL,
+                                             password=self.PASSWORD)
         saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
 
     def tearDown(self):
         del saml2idp_metadata.SAML2IDP_REMOTES['foobar']
-
 
     def _hit_saml_view(self, url, data={}):
         """
@@ -48,7 +46,7 @@ class SamlTestCase(TestCase):
         response = self.client.get(url, data=data, follow=True)
         html = response.content
         soup = BeautifulSoup(html)
-        inputtag = soup.findAll('input', {'name':'SAMLResponse'})[0]
+        inputtag = soup.findAll('input', {'name': 'SAMLResponse'})[0]
         encoded_response = inputtag['value']
         saml = codex.base64.b64decode(encoded_response)
         saml_soup = BeautifulStoneSoup(saml)
@@ -59,7 +57,7 @@ class SamlTestCase(TestCase):
         self._saml = saml
         self._saml_soup = saml_soup
 
-        return # not returning anything
+        return  # not returning anything
 
 
 class TestBaseProcessor(SamlTestCase):
@@ -74,7 +72,8 @@ class TestBaseProcessor(SamlTestCase):
 
     def test_authnrequest_handled(self):
         # Arrange/Act:
-        response = self.client.get('/idp/login/', data=self.REQUEST_DATA, follow=False)
+        response = self.client.get('/idp/login/', data=self.REQUEST_DATA,
+                                   follow=False)
 
         # Assert:
         self.assertEqual(response.status_code, 302)
