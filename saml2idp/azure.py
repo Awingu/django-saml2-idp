@@ -3,7 +3,6 @@ from BeautifulSoup import BeautifulStoneSoup
 
 # local app imports:
 import base
-import codex
 import exceptions
 import xml_render
 
@@ -21,12 +20,6 @@ class Processor(base.Processor):
     """
     Microsoft Azure SAML 2.0 AuthnRequest to Response Handler Processor.
     """
-    def _decode_request(self):
-        """
-        Decodes request using both Base64 and Zipping.
-        """
-        # @TODO: Check if needed!
-        self._request_xml = codex.decode_base64_and_inflate(self._saml_request)
 
     def _parse_request(self):
         """
@@ -101,7 +94,7 @@ class Processor(base.Processor):
         We also add IDPEmail as an attribute.
         """
         # TODO: Find a clean way to get user ObjectGUID
-        self._subject = self._django_request.user.email
+        self._subject = 'aY1HH4WF7kuJ9qdyKH5kSQ=='
         self._idp_email = self._django_request.user.email
 
     def _determine_audience(self):
