@@ -53,6 +53,7 @@ class Processor(object):
         self._assertion_params = {
             'ASSERTION_ID': self._assertion_id,
             'ASSERTION_SIGNATURE': '',  # it's unsigned
+            'ATTRIBUTES': self._get_attributes(),
             'AUDIENCE': self._audience,
             'AUTH_INSTANT': get_time_string(),
             'ISSUE_INSTANT': get_time_string(),
@@ -142,6 +143,12 @@ class Processor(object):
         sign_it = saml2idp_metadata.SAML2IDP_CONFIG['signing']
         self._response_xml = xml_render.get_response_xml(
             self._response_params, signed=sign_it)
+
+    def _get_attributes(self):
+        """
+        Returns a dict of attributes to be added in response assertion.
+        """
+        return {}
 
     def _get_django_response_params(self):
         """
