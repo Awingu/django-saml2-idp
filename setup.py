@@ -1,3 +1,5 @@
+from setuptest import test
+
 from setuptools import setup, find_packages
 
 setup(
@@ -14,11 +16,12 @@ setup(
     install_requires=[
     ],
     tests_require=[
-        'django-setuptest>=0.1.2',
+        'django-setuptest>=0.1.4',
         'pysqlite>=2.5',
         'BeautifulSoup==3.2.1',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
+    cmdclass={'test': test},
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python",

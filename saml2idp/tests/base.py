@@ -2,7 +2,10 @@
 Tests for the Base Processor class.
 """
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
+
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
 from django.test import TestCase
 from .. import codex
 from .. import saml2idp_metadata
@@ -17,6 +20,18 @@ class SamlTestCase(TestCase):
     USERNAME = 'fred'
     PASSWORD = 'secret'
     EMAIL = 'fred@example.com'
+
+    @property
+    def login_url(self):
+        return reverse('idp_login_begin')
+
+    @property
+    def logout_url(self):
+        return reverse('idp_logout')
+
+    @property
+    def login_process_url(self):
+        return reverse('idp_login_process')
 
     def setUp(self):
         self.fred = User.objects.create_user(self.USERNAME,
@@ -72,7 +87,7 @@ class TestBaseProcessor(SamlTestCase):
 
     def test_authnrequest_handled(self):
         # Arrange/Act:
-        response = self.client.get('/idp/login/', data=self.REQUEST_DATA,
+        response = self.client.get(self.login_url, data=self.REQUEST_DATA,
                                    follow=False)
 
         # Assert:
@@ -80,7 +95,7 @@ class TestBaseProcessor(SamlTestCase):
 
     def test_user_logged_in(self):
         # Arrange/Act:
-        self._hit_saml_view('/idp/login', data=self.REQUEST_DATA)
+        self._hit_saml_view(self.login_url, data=self.REQUEST_DATA)
 
         # Assert:
         self.assertTrue(self.EMAIL in self._saml)

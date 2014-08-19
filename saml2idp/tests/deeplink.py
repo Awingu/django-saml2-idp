@@ -1,25 +1,41 @@
 """
-Tests for the demo AttributeProcessor and IdP-initiated deep-linking.
+Tests for the dj AttributeProcessor and IdP-initiated deep-linking.
 """
 
 # local imports:
+import os
 import base
+
+# Django imports:
+from django.utils.unittest.case import skip
+from django.core.urlresolvers import reverse
 
 
 class TestDeepLink(base.SamlTestCase):
+
+    @property
+    def deeplink(self):
+        return os.path.join(
+            'http://127.0.0.1:8000',
+            reverse('idp_login_init', args=[self.RESOURCE, self.TARGET]))
+
     SP_CONFIG = {
         'acs_url': 'http://127.0.0.1:9000/sp/acs/',
-        'processor': 'saml2idp.demo.Processor',
+        'processor': 'saml2idp.dj.Processor',
         'links': {
             'deeplink': 'http://127.0.0.1:9000/sp/%s/',
         }
     }
-    DEEPLINK = 'http://127.0.0.1:8000/idp/init/deeplink/test/'
+
+    # DEEPLINK URL ARGS
+    RESOURCE = 'deeplink'
+    TARGET = 'test'
+
     EXPECTED_RELAY_STATE = 'http://127.0.0.1:9000/sp/test/'
 
     def test_deeplink(self):
         # Arrange/Act:
-        self._hit_saml_view(self.DEEPLINK)
+        self._hit_saml_view(self.deeplink)
         # Assert:
         relaystate = self._html_soup.findAll('input',
                                              {'name': 'RelayState'})[0]
@@ -27,16 +43,22 @@ class TestDeepLink(base.SamlTestCase):
 
 
 class TestDeepLinkWithAttributes(TestDeepLink):
+
     SP_CONFIG = {
         'acs_url': 'http://127.0.0.1:9000/sp/acs/',
-        'processor': 'saml2idp.demo.AttributeProcessor',
+        'processor': 'saml2idp.dj.AttributeProcessor',
         'links': {
             'attr': 'http://127.0.0.1:9000/sp/%s/',
         },
     }
-    DEEPLINK = 'http://127.0.0.1:8000/idp/init/attr/test/'
+
+    # DEEPLINK URL ARGS
+    RESOURCE = 'attr'
+    TARGET = 'test'
+
     EXPECTED_RELAY_STATE = 'http://127.0.0.1:9000/sp/test/'
 
+    @skip('saml2idp.dj does not have AttributeProcessor.')
     def test_deeplink(self):
         super(TestDeepLinkWithAttributes, self).test_deeplink()
         attributes = self._saml_soup.findAll('saml:attribute')
