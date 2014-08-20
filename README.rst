@@ -1,4 +1,5 @@
-saml2sp
-=======
+================
+Django-saml2-idp
+================
 
-SAML 2.0 Service Provider Django App
+SAML 2.0 Identity Provider Django App
