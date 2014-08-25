@@ -142,7 +142,7 @@ class Processor(base.Processor):
         """
         Determines the _audience.
         """
-        self._audience = self._request_params.get('REQUEST_ISSUER', None)
+        self._audience = AZURE_REQUEST_ISSUER
 
     def _get_attributes(self):
         """

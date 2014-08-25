@@ -271,7 +271,7 @@ class Processor(object):
         self._reset(request, sp_config)
         acs_url = self._sp_config['acs_url']
         # NOTE: The following request params are made up. Some are blank,
-        # because they comes over in the AuthnRequest, but we don't have an
+        # because they come over in the AuthnRequest, but we don't have an
         # AuthnRequest in this case:
         # - Destination: Should be this IdP's SSO endpoint URL. Not used in
         #                the response?
