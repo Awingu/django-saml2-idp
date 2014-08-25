@@ -101,10 +101,28 @@ def logout(request):
     returns a standard logged-out page. (SalesForce and others use this method,
     though it's technically not SAML 2.0).
     """
+    # first, check if we are required to bypass logout
+    logout_disabled = saml2idp_metadata.SAML2IDP_CONFIG.get(
+        'logout_disabled', False)
+
+    if logout_disabled:
+        return bypass_logout()
+
     auth.logout(request)
     tv = {}
     return render_to_response('saml2idp/logged_out.html', tv,
                               context_instance=RequestContext(request))
+
+
+def bypass_logout():
+    """
+    Checks if logout is disabled in IDP config, and redirects to optional url
+    or directly to '/'
+    """
+    redirect_url = saml2idp_metadata.SAML2IDP_CONFIG.get(
+        'logout_bypass_url', '/')
+
+    return redirect(redirect_url)
 
 
 @login_required
@@ -121,6 +139,14 @@ def slo_logout(request):
     # TODO: Combine this with login_process(), since they are so very similar?
     # TODO: Format a LogoutResponse and return it to the browser.
     # XXX: For now, simply log out without validating the request.
+
+    # check if we are required to bypass logout
+    logout_disabled = saml2idp_metadata.SAML2IDP_CONFIG.get(
+        'logout_disabled', False)
+
+    if logout_disabled:
+        return bypass_logout()
+
     auth.logout(request)
     tv = {}
     return render_to_response('saml2idp/logged_out.html', tv,
@@ -141,7 +167,6 @@ def descriptor(request):
         'cert_public_key': pubkey,
         'slo_url': slo_url,
         'sso_url': sso_url,
-
     }
     return xml_response(request, 'saml2idp/idpssodescriptor.xml', tv,
                         context_instance=RequestContext(request))

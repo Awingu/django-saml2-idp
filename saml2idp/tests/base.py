@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from django.test import TestCase
-from .. import codex
-from .. import saml2idp_metadata
+from saml2idp import codex
+from saml2idp import saml2idp_metadata
 
 
 class SamlTestCase(TestCase):
@@ -94,7 +94,9 @@ class TestBaseProcessor(SamlTestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_user_logged_in(self):
-        # Arrange/Act:
+        """
+        Test SSO login.
+        """
         self._hit_saml_view(self.login_url, data=self.REQUEST_DATA)
 
         # Assert:

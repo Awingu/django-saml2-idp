@@ -10,7 +10,9 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from django.test import TestCase
-from .. import exceptions
+
+from saml2idp import exceptions
+from saml2idp import saml2idp_metadata
 
 
 SAML_REQUEST = 'this is not a real SAML Request'
@@ -34,6 +36,10 @@ class ViewTestCase(TestCase):
     @property
     def login_process_url(self):
         return reverse('idp_login_process')
+
+    def tearDown(self):
+        saml2idp_metadata.SAML2IDP_CONFIG.pop('logout_disabled', None)
+        saml2idp_metadata.SAML2IDP_CONFIG.pop('logout_bypass_url', None)
 
 
 class TestLoginView(ViewTestCase):
@@ -121,7 +127,25 @@ class TestLogoutView(ViewTestCase):
         self.assertTrue('_auth_user_id' in self.client.session,
                         'Did not login test user; test is broken.')
 
+        # response = self.client.get(self.logout_url)
         self.client.get(self.logout_url)
 
         self.assertTrue('_auth_user_id' not in self.client.session,
                         'Did not logout test user.')
+
+        # self.assertTrue('logged out' in response.content)
+
+    def test_logout_disabled(self):
+        """
+        Test disabled logout.
+        """
+        saml2idp_metadata.SAML2IDP_CONFIG.update({
+            'logout_disabled': True,
+            'logout_bypass_url': '/'
+        })
+
+        response = self.client.get(self.logout_url)
+
+        self.assertFalse('logged out' in response.content)
+
+        self.assertEqual(response.status_code, 302)
