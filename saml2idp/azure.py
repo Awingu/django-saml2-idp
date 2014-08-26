@@ -6,6 +6,9 @@ import base
 import xml_render
 from exceptions import CannotHandleAssertion
 
+from django.utils.importlib import import_module
+from django.core.exceptions import ImproperlyConfigured
+
 # Default Azure ACS_URL.
 AZURE_ACS_URL = 'https://login.microsoftonline.com/login.srf'
 
@@ -43,6 +46,8 @@ class Processor(base.Processor):
         'acs_url': 'https://login.microsoftonline.com/login.srf',
         'processor': 'saml2idp.azure.Processor',
         'subject_function': get_subject_from_django_user
+        # or as a string
+        # 'subject_function': 'pkg.mod.get_subject_from_django_user'
     }
 
     SAML2IDP_REMOTES = {
@@ -119,6 +124,12 @@ class Processor(base.Processor):
                 'Missing "subject_function" in Azure config found in '
                 'SAML2IDP_REMOTES setting.')
 
+        if not self._get_subject_function():
+            # Invalid subject function
+            raise ImproperlyConfigured(
+                'Error importing subject_function: %s'
+                % self._sp_config['subject_function'])
+
         if not self._django_request.user.email:
             raise CannotHandleAssertion('Invalid user email.')
 
@@ -134,9 +145,31 @@ class Processor(base.Processor):
         user AD ObjectGUID. Check codex.convert_guid_to_immutable_id for
         implementation.
         """
-        subject_function = self._sp_config['subject_function']
+        subject_function = self._get_subject_function()
         self._subject = subject_function(self._django_request)
         self._idp_email = self._django_request.user.email
+
+    def _get_subject_function(self):
+        """
+        Returns the subject_function from SP config.
+
+        sp_config['subject_function'] can be a string or a function.
+        """
+        subject_function = self._sp_config['subject_function']
+
+        if isinstance(subject_function, basestring):
+            # function supplied as a string
+            parts = subject_function.split('.')
+
+            mod_str = '.'.join(parts[:-1])  # module string
+            func_str = parts[-1]  # function string
+            try:
+                mod = import_module(mod_str)
+                return getattr(mod, func_str)
+            except:
+                return None
+
+        return subject_function
 
     def _determine_audience(self):
         """

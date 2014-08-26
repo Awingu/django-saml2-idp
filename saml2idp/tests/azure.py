@@ -4,12 +4,15 @@ Tests for the Microsoft Azure processor.
 import uuid
 import base64
 
+from django.core.exceptions import ImproperlyConfigured
+
 # local imports:
 import base
 
+from saml2idp import saml2idp_metadata
 from saml2idp.azure import AZURE_ACS_URL
+from saml2idp.exceptions import CannotHandleAssertion
 from saml2idp.codex import convert_guid_to_immutable_id
-
 
 SAML_REQUEST = base64.b64encode(
     '<?xml version="1.0" encoding="UTF-8"?>'
@@ -54,6 +57,39 @@ class TestAzureProcessor(base.TestBaseProcessor):
         """
         super(TestAzureProcessor, self).test_user_logged_in()
         self.assertTrue(get_user_subject(None) in self._saml)
+
+    def test_subject_function_str(self):
+        """
+        Test subject_function as string.
+        """
+        self.SP_CONFIG['subject_function'] =\
+            'saml2idp.tests.azure.get_user_subject'
+        saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
+
+        super(TestAzureProcessor, self).test_user_logged_in()
+        self.assertTrue(get_user_subject(None) in self._saml)
+
+    def test_invalid_sp_config(self):
+        """
+        Missing subject_function.
+        """
+        invalid_sp_config = self.SP_CONFIG
+        invalid_sp_config.pop('subject_function')
+        saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = invalid_sp_config
+
+        with self.assertRaises(CannotHandleAssertion):
+                super(TestAzureProcessor, self).test_user_logged_in()
+
+    def test_invalid_sp_config_subject_function_str(self):
+        """
+        Missing subject_function.
+        """
+        self.SP_CONFIG['subject_function'] =\
+            'saml2idp.tests.azure.get_user_subject_doesnot_exist'
+        saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
+
+        with self.assertRaises(ImproperlyConfigured):
+                super(TestAzureProcessor, self).test_user_logged_in()
 
     def test_convert_guid_str(self):
         """
