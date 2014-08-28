@@ -81,9 +81,13 @@ class TestBaseProcessor(SamlTestCase):
     SP_CONFIG = ServicePoint metadata settings to use.
     REQUEST_DATA = dictionary containing 'SAMLRequest' and 'RelayState' keys.
     """
-    USERNAME = 'fred'
-    PASSWORD = 'secret'
-    EMAIL = 'fred@example.com'
+
+    def setUp(self):
+        self.USERNAME = 'fred'
+        self.PASSWORD = 'secret'
+        self.EMAIL = 'fred@example.com'
+
+        super(TestBaseProcessor, self).setUp()
 
     def test_authnrequest_handled(self):
         # Arrange/Act:

@@ -27,6 +27,9 @@ class Processor(base.Processor):
     Azure SP configuration should include 'subject_function' which is a
     function used by Azure processor to retrieve Subject NameID (ImmutableID).
 
+    Configuration can also include 'email_function' if django.user.email is not
+    the desired IDPEmail of the user.
+
     You can use: from saml2idp.codex import convert_guid_to_immutable_id
 
     Example of subject_function:
@@ -48,6 +51,7 @@ class Processor(base.Processor):
         'subject_function': get_subject_from_django_user
         # or as a string
         # 'subject_function': 'pkg.mod.get_subject_from_django_user'
+        # 'email_function': 'pkg.mod.get_idp_email'
     }
 
     SAML2IDP_REMOTES = {
@@ -138,8 +142,9 @@ class Processor(base.Processor):
         Determines _subject for Assertion Subject.
 
         We need to get Subject (NameID) and add IDPEmail as an attribute.
-        This method calls sp_config['subject_function'] to get NameID, and it
-        will use django user email as the IDPEmail.
+        This method calls sp_config['subject_function'] to get NameID,
+        It will use django.user.email as the IDPEmail if
+        sp_config['email_function'] is not supplied.
 
         NameID: is the Office 365 ImmutableID. ImmutableID is derived from
         user AD ObjectGUID. Check codex.convert_guid_to_immutable_id for
@@ -147,7 +152,10 @@ class Processor(base.Processor):
         """
         subject_function = self._get_subject_function()
         self._subject = subject_function(self._django_request)
-        self._idp_email = self._django_request.user.email
+
+        email_function = self._get_email_function()
+        self._idp_email = email_function(self._django_request) \
+            if email_function else self._django_request.user.email
 
     def _get_subject_function(self):
         """
@@ -155,21 +163,37 @@ class Processor(base.Processor):
 
         sp_config['subject_function'] can be a string or a function.
         """
+        # @TODO: Move to base?
         subject_function = self._sp_config['subject_function']
 
-        if isinstance(subject_function, basestring):
-            # function supplied as a string
-            parts = subject_function.split('.')
+        return self._import_function_from_str(subject_function)
 
-            mod_str = '.'.join(parts[:-1])  # module string
-            func_str = parts[-1]  # function string
+    def _get_email_function(self):
+        """
+        Returns the email_function from SP config.
+
+        sp_config['email_function'] can be a string or a function.
+        """
+        email_function = self._sp_config.get('email_function', None)
+
+        return self._import_function_from_str(email_function)
+
+    def _import_function_from_str(self, func):
+        """
+        Import function from string.
+
+        func can be a string or a function.
+        """
+        if isinstance(func, basestring):
+            # function supplied as a string
+            mod_str, _, func_str = func.rpartition('.')
             try:
                 mod = import_module(mod_str)
                 return getattr(mod, func_str)
             except:
                 return None
 
-        return subject_function
+        return func
 
     def _determine_audience(self):
         """
