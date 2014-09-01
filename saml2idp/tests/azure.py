@@ -42,7 +42,7 @@ def get_user_subject(django_request):
     return convert_guid_to_immutable_id(guid)
 
 
-def get_user_email(django_request):
+def get_user_idp_email(django_request, attribute):
     return 'freddy@example.com'
 
 
@@ -56,7 +56,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
     REQUEST_DATA = REQUEST_DATA
 
     def tearDown(self):
-        self.SP_CONFIG.pop('email_function', None)
+        self.SP_CONFIG.pop('attribute_function', None)
         self.SP_CONFIG['subject_function'] = get_user_subject
         super(TestAzureProcessor, self).tearDown()
 
@@ -100,39 +100,39 @@ class TestAzureProcessor(base.TestBaseProcessor):
         with self.assertRaises(ImproperlyConfigured):
                 super(TestAzureProcessor, self).test_user_logged_in()
 
-    def test_email_function(self):
+    def test_attribute_function(self):
         """
-        Test email_function.
+        Test attribute_function.
         """
-        self.SP_CONFIG['email_function'] = get_user_email
+        self.SP_CONFIG['attribute_function'] = get_user_idp_email
         saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
 
-        self.EMAIL = get_user_email(None)
+        self.EMAIL = get_user_idp_email(None, None)
 
         super(TestAzureProcessor, self).test_user_logged_in()
 
-    def test_email_function_str(self):
+    def test_attribute_function_str(self):
         """
-        Test email_function as string.
+        Test attribute_function as string.
         """
-        self.SP_CONFIG['email_function'] =\
-            'saml2idp.tests.azure.get_user_email'
+        self.SP_CONFIG['attribute_function'] =\
+            'saml2idp.tests.azure.get_user_idp_email'
         saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
 
-        self.EMAIL = get_user_email(None)
+        self.EMAIL = get_user_idp_email(None, None)
 
         super(TestAzureProcessor, self).test_user_logged_in()
 
-    def test_email_function_str_invalid(self):
+    def test_attribute_function_str_invalid(self):
         """
-        Test invalid email_function as string.
+        Test invalid attribute_function as string.
         """
-        self.SP_CONFIG['email_function'] =\
-            'saml2idp.tests.azure.get_user_email_does_not_exist'
+        self.SP_CONFIG['attribute_function'] =\
+            'saml2idp.tests.azure.get_user_idp_email_does_not_exist'
         saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
 
         super(TestAzureProcessor, self).test_user_logged_in()
-        self.assertFalse(get_user_email(None) in self._saml)
+        self.assertFalse(get_user_idp_email(None, None) in self._saml)
 
     def test_convert_guid_str(self):
         """

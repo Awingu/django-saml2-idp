@@ -6,6 +6,7 @@ import uuid
 
 # Django and other library imports:
 from BeautifulSoup import BeautifulStoneSoup
+from django.utils.importlib import import_module
 
 # local app imports:
 import codex
@@ -113,9 +114,17 @@ class Processor(object):
 
     def _determine_subject(self):
         """
-        Determines _subject and _subject_type for Assertion Subject.
+        Determines _subject for Assertion Subject.
+
+        This method calls sp_config['subject_function'] if exists, otherwise
+        it will use self._django_request.user.email.
         """
+        # default value
         self._subject = self._django_request.user.email
+
+        subject_function = self._get_subject_function()
+        if subject_function:
+            self._subject = subject_function(self._django_request)
 
     def _encode_response(self):
         """
@@ -147,8 +156,39 @@ class Processor(object):
     def _get_attributes(self):
         """
         Returns a dict of attributes to be added in response assertion.
+
+        This method must be overridden in the sub-classes processors, as there
+        are no generic attributes and it depends on the Service provider.
         """
         return {}
+
+    def _get_attribute_function(self):
+        """
+        Returns the attribute_function from SP config.
+
+        sp_config['attribute_function'] can be a string or a function.
+        attribute_function should expect a Django request and attribute name.
+
+        Example:
+        def get_attribute_from_django_request(django_request, attribute):
+            attr = get_attribute(django_request.user, attribute)
+            return attr
+
+        azure_config = {
+            'acs_url': 'https://login.microsoftonline.com/login.srf',
+            'processor': 'saml2idp.azure.Processor',
+            'attribute_function': get_attribute_from_django_request
+            # or as a string
+            # 'attribute_function': 'pkg.mod.get_attribute_from_django_request'
+        }
+
+        SAML2IDP_REMOTES = {
+            'azure': azure_config
+        }
+        """
+        attribute_function = self._sp_config.get('attribute_function', None)
+
+        return self._import_function_from_str(attribute_function)
 
     def _get_django_response_params(self):
         """
@@ -161,6 +201,51 @@ class Processor(object):
             'autosubmit': saml2idp_metadata.SAML2IDP_CONFIG['autosubmit'],
         }
         return tv
+
+    def _get_subject_function(self):
+        """
+        Returns the subject_function from SP config.
+
+        sp_config['subject_function'] can be a string or a function.
+        subject_function should expect a Django request instance.
+
+        Example:
+        def get_subject_from_django_user(django_request):
+            subject = get_subject_from_django_request()
+            return subject
+
+        azure_config = {
+            'acs_url': 'https://login.microsoftonline.com/login.srf',
+            'processor': 'saml2idp.azure.Processor',
+            'subject_function': get_subject_from_django_user
+            # or as a string
+            # 'subject_function': 'pkg.mod.get_subject_from_django_user'
+        }
+
+        SAML2IDP_REMOTES = {
+            'azure': azure_config
+        }
+        """
+        subject_function = self._sp_config.get('subject_function', None)
+
+        return self._import_function_from_str(subject_function)
+
+    def _import_function_from_str(self, func):
+        """
+        Import function from string.
+
+        :param func: Can be a string or a function
+        """
+        if isinstance(func, basestring):
+            # function supplied as a string
+            mod_str, _, func_str = func.rpartition('.')
+            try:
+                mod = import_module(mod_str)
+                return getattr(mod, func_str)
+            except:
+                return None
+
+        return func
 
     def _parse_request(self):
         """

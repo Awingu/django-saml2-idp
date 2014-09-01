@@ -6,7 +6,6 @@ import base
 import xml_render
 from exceptions import CannotHandleAssertion
 
-from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 
 # Default Azure ACS_URL.
@@ -27,10 +26,11 @@ class Processor(base.Processor):
     Azure SP configuration should include 'subject_function' which is a
     function used by Azure processor to retrieve Subject NameID (ImmutableID).
 
-    Configuration can also include 'email_function' if django.user.email is not
-    the desired IDPEmail of the user.
+    Configuration can also include 'attribute_function' if django.user.email
+    is not the desired IDPEmail of the user.
 
-    You can use: from saml2idp.codex import convert_guid_to_immutable_id
+    You can use: from saml2idp.codex import convert_guid_to_immutable_id to
+    convert from AD ObjectGUID to Azure ImmutableID.
 
     Example of subject_function:
 
@@ -51,7 +51,7 @@ class Processor(base.Processor):
         'subject_function': get_subject_from_django_user
         # or as a string
         # 'subject_function': 'pkg.mod.get_subject_from_django_user'
-        # 'email_function': 'pkg.mod.get_idp_email'
+        # 'attribute_function': 'pkg.mod.get_attribute_idp_email'
     }
 
     SAML2IDP_REMOTES = {
@@ -134,66 +134,9 @@ class Processor(base.Processor):
                 'Error importing subject_function: %s'
                 % self._sp_config['subject_function'])
 
-        if not self._django_request.user.email:
+        if not self._django_request.user.email and \
+                not self._get_attribute_function():
             raise CannotHandleAssertion('Invalid user email.')
-
-    def _determine_subject(self):
-        """
-        Determines _subject for Assertion Subject.
-
-        We need to get Subject (NameID) and add IDPEmail as an attribute.
-        This method calls sp_config['subject_function'] to get NameID,
-        It will use django.user.email as the IDPEmail if
-        sp_config['email_function'] is not supplied.
-
-        NameID: is the Office 365 ImmutableID. ImmutableID is derived from
-        user AD ObjectGUID. Check codex.convert_guid_to_immutable_id for
-        implementation.
-        """
-        subject_function = self._get_subject_function()
-        self._subject = subject_function(self._django_request)
-
-        email_function = self._get_email_function()
-        self._idp_email = email_function(self._django_request) \
-            if email_function else self._django_request.user.email
-
-    def _get_subject_function(self):
-        """
-        Returns the subject_function from SP config.
-
-        sp_config['subject_function'] can be a string or a function.
-        """
-        # @TODO: Move to base?
-        subject_function = self._sp_config['subject_function']
-
-        return self._import_function_from_str(subject_function)
-
-    def _get_email_function(self):
-        """
-        Returns the email_function from SP config.
-
-        sp_config['email_function'] can be a string or a function.
-        """
-        email_function = self._sp_config.get('email_function', None)
-
-        return self._import_function_from_str(email_function)
-
-    def _import_function_from_str(self, func):
-        """
-        Import function from string.
-
-        func can be a string or a function.
-        """
-        if isinstance(func, basestring):
-            # function supplied as a string
-            mod_str, _, func_str = func.rpartition('.')
-            try:
-                mod = import_module(mod_str)
-                return getattr(mod, func_str)
-            except:
-                return None
-
-        return func
 
     def _determine_audience(self):
         """
@@ -207,8 +150,15 @@ class Processor(base.Processor):
 
         Mainly adding the IDPEmail attribute.
         """
+        # Default value
+        idp_email = self._django_request.user.email
+
+        attribute_function = self._get_attribute_function()
+        if attribute_function:
+            idp_email = attribute_function(self._django_request, 'IDPEmail')
+
         return {
-            'IDPEmail': self._idp_email
+            'IDPEmail': idp_email
         }
 
     def _format_assertion(self):
