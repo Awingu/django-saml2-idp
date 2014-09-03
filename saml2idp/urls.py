@@ -1,4 +1,8 @@
-from django.conf.urls.defaults import *  # noqa
+try:
+    # backward compatibility with Django<1.6
+    from django.conf.urls.defaults import *  # noqa
+except ImportError:
+    from django.conf.urls import *  # noqa
 
 from saml2idp.views import descriptor, login_begin, login_init, login_process,\
     logout
