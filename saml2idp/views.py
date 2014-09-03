@@ -159,8 +159,9 @@ def descriptor(request):
     """
     idp_config = saml2idp_metadata.SAML2IDP_CONFIG
     entity_id = idp_config['issuer']
-    slo_url = request.build_absolute_uri(reverse('logout'))
-    sso_url = request.build_absolute_uri(reverse('login_begin'))
+    # @TODO: modify to SLO url once it is implemented properly.
+    slo_url = request.build_absolute_uri(reverse('idp_logout'))
+    sso_url = request.build_absolute_uri(reverse('idp_login_begin'))
     pubkey = xml_signing.load_cert_data(idp_config['certificate_file'])
     tv = {
         'entity_id': entity_id,
