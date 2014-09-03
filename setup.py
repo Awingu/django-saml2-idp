@@ -10,7 +10,6 @@ except ImportError:
 
 from saml2idp import __VERSION__
 
-print __VERSION__
 
 setup(
     name='django-saml2-idp',
