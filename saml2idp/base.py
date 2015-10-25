@@ -11,7 +11,6 @@ from django.utils.importlib import import_module
 # local app imports:
 import codex
 import exceptions
-import saml2idp_metadata
 import xml_render
 
 MINUTES = 60
@@ -149,9 +148,9 @@ class Processor(object):
         """
         Formats _response_params as _response_xml.
         """
-        sign_it = saml2idp_metadata.SAML2IDP_CONFIG['signing']
+        sign_it = self._saml2idp_config['signing']
         self._response_xml = xml_render.get_response_xml(
-            self._response_params, signed=sign_it)
+            self._saml2idp_config, self._response_params, signed=sign_it)
 
     def _get_attributes(self):
         """
@@ -198,7 +197,7 @@ class Processor(object):
             'acs_url': self._request_params['ACS_URL'],
             'saml_response': self._saml_response,
             'relay_state': self._relay_state,
-            'autosubmit': saml2idp_metadata.SAML2IDP_CONFIG['autosubmit'],
+            'autosubmit': self._saml2idp_config['autosubmit'],
         }
         return tv
 
@@ -272,9 +271,14 @@ class Processor(object):
         If provided, use sp_config throughout; otherwise, it will be set in
         _validate_request().
         """
+        self._django_request = django_request
+        self._saml2idp_remotes = (
+            django_request.session['SAML2IDP']['SAML2IDP_REMOTES'])
+        self._saml2idp_config = (
+            django_request.session['SAML2IDP']['SAML2IDP_CONFIG'])
+
         self._assertion_params = None
         self._assertion_xml = None
-        self._django_request = django_request
         self._relay_state = None
         self._request = None
         self._request_id = None
@@ -284,10 +288,10 @@ class Processor(object):
         self._saml_request = None
         self._saml_response = None
         self._subject = None
-        self._subject_format = \
-            'urn:oasis:names:tc:SAML:2.0:nameid-format:email'
+        self._subject_format = (
+            'urn:oasis:names:tc:SAML:2.0:nameid-format:email')
         self._system_params = {
-            'ISSUER': saml2idp_metadata.SAML2IDP_CONFIG['issuer'],
+            'ISSUER': self._saml2idp_config['issuer'],
         }
         self._sp_config = sp_config
 
@@ -299,12 +303,14 @@ class Processor(object):
         CannotHandleAssertion Exception if the validation does not succeed.
         """
         acs_url = self._request_params['ACS_URL']
-        for name, sp_config in saml2idp_metadata.SAML2IDP_REMOTES.items():
+
+        for name, sp_config in self._saml2idp_remotes.items():
             if acs_url == sp_config['acs_url']:
                 self._sp_config = sp_config
                 return
-        msg = "Could not find ACS url '%s' in SAML2IDP_REMOTES setting." % \
-            acs_url
+
+        msg = "Could not find ACS url '%s' in SAML2IDP_REMOTES setting." % (
+            acs_url)
         raise exceptions.CannotHandleAssertion(msg)
 
     def _validate_user(self):

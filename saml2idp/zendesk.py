@@ -27,4 +27,4 @@ class Processor(base.Processor):
     def _format_assertion(self):
 
         self._assertion_xml = xml_render.get_assertion_zendesk_xml(
-            self._assertion_params, signed=True)
+            self._saml2idp_config, self._assertion_params, signed=True)

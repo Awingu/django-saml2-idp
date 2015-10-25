@@ -3,10 +3,12 @@ Functions for creating XML output.
 """
 import logging
 import string
+
 from xml_signing import get_signature_xml
-from xml_templates import ATTRIBUTE, ATTRIBUTE_STATEMENT, \
-    ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, ASSERTION_ZENDESK, \
-    ASSERTION_AZURE, RESPONSE, SUBJECT
+from xml_templates import (
+    ATTRIBUTE, ATTRIBUTE_STATEMENT,
+    ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, ASSERTION_ZENDESK,
+    ASSERTION_AZURE, RESPONSE, SUBJECT)
 
 
 def _get_attribute_statement(params):
@@ -59,7 +61,7 @@ def _get_subject(params):
     params['SUBJECT_STATEMENT'] = template.substitute(params)
 
 
-def _get_assertion_xml(template, parameters, signed=False):
+def _get_assertion_xml(saml2idp_config, template, parameters, signed=False):
     # Reset signature.
     params = {}
     params.update(parameters)
@@ -77,7 +79,8 @@ def _get_assertion_xml(template, parameters, signed=False):
         return unsigned
 
     # Sign it.
-    signature_xml = get_signature_xml(unsigned, params['ASSERTION_ID'])
+    signature_xml = get_signature_xml(saml2idp_config, unsigned,
+                                      params['ASSERTION_ID'])
     params['ASSERTION_SIGNATURE'] = signature_xml
     signed = template.substitute(params)
 
@@ -86,23 +89,27 @@ def _get_assertion_xml(template, parameters, signed=False):
     return signed
 
 
-def get_assertion_googleapps_xml(parameters, signed=False):
-    return _get_assertion_xml(ASSERTION_GOOGLE_APPS, parameters, signed)
+def get_assertion_googleapps_xml(saml2idp_config, parameters, signed=False):
+    return _get_assertion_xml(
+        saml2idp_config, ASSERTION_GOOGLE_APPS, parameters, signed)
 
 
-def get_assertion_salesforce_xml(parameters, signed=False):
-    return _get_assertion_xml(ASSERTION_SALESFORCE, parameters, signed)
+def get_assertion_salesforce_xml(saml2idp_config, parameters, signed=False):
+    return _get_assertion_xml(
+        saml2idp_config, ASSERTION_SALESFORCE, parameters, signed)
 
 
-def get_assertion_zendesk_xml(parameters, signed=False):
-    return _get_assertion_xml(ASSERTION_ZENDESK, parameters, signed)
+def get_assertion_zendesk_xml(saml2idp_config, parameters, signed=False):
+    return _get_assertion_xml(
+        saml2idp_config, ASSERTION_ZENDESK, parameters, signed)
 
 
-def get_assertion_azure_xml(parameters, signed=False):
-    return _get_assertion_xml(ASSERTION_AZURE, parameters, signed)
+def get_assertion_azure_xml(saml2idp_config, parameters, signed=False):
+    return _get_assertion_xml(
+        saml2idp_config, ASSERTION_AZURE, parameters, signed)
 
 
-def get_response_xml(parameters, signed=False):
+def get_response_xml(saml2idp_config, parameters, signed=False):
     """
     Returns XML for response, with signatures, if signed is True.
     """
@@ -121,7 +128,8 @@ def get_response_xml(parameters, signed=False):
         return unsigned
 
     # Sign it.
-    signature_xml = get_signature_xml(unsigned, params['RESPONSE_ID'])
+    signature_xml = get_signature_xml(saml2idp_config, unsigned,
+                                      params['RESPONSE_ID'])
     params['RESPONSE_SIGNATURE'] = signature_xml
     signed = template.substitute(params)
 

@@ -27,6 +27,13 @@ TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'tests/templates'),
 )
 
+MIDDLEWARE_CLASSES = [
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+]
+
 # # SAML2IDP metadata settings
 SAML2IDP_CONFIG = {
     'autosubmit': True,

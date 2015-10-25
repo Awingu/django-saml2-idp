@@ -8,7 +8,7 @@ import string
 # other libraries:
 import M2Crypto
 # this app:
-import saml2idp_metadata
+# import saml2idp_metadata
 from codex import nice64
 from xml_templates import SIGNED_INFO, SIGNATURE
 
@@ -22,13 +22,13 @@ def load_cert_data(certificate_file):
     return cert_data
 
 
-def get_signature_xml(subject, reference_uri):
+def get_signature_xml(saml2idp_config, subject, reference_uri):
     """
     Returns XML Signature for subject.
     """
-    config = saml2idp_metadata.SAML2IDP_CONFIG
-    private_key_file = config['private_key_file']
-    certificate_file = config['certificate_file']
+    private_key_file = saml2idp_config['private_key_file']
+    certificate_file = saml2idp_config['certificate_file']
+
     logging.debug('get_signature_xml - Begin.')
     logging.debug('Using private key file: ' + private_key_file)
     logging.debug('Using certificate file: ' + certificate_file)
@@ -38,6 +38,7 @@ def get_signature_xml(subject, reference_uri):
     subject_hash = hashlib.sha1()
     subject_hash.update(subject)
     subject_digest = nice64(subject_hash.digest())
+
     logging.debug('Subject digest: ' + subject_digest)
 
     # Create signed_info.
@@ -45,6 +46,7 @@ def get_signature_xml(subject, reference_uri):
         'REFERENCE_URI': reference_uri,
         'SUBJECT_DIGEST': subject_digest,
     })
+
     logging.debug('SignedInfo XML: ' + signed_info)
 
     # RSA-sign the signed_info.
@@ -65,5 +67,7 @@ def get_signature_xml(subject, reference_uri):
         'SIGNED_INFO': signed_info_short,
         'CERTIFICATE': cert_data,
     })
+
     logging.debug('Signature XML: ' + signature_xml)
+
     return signature_xml

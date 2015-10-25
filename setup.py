@@ -10,8 +10,6 @@ except ImportError:
 
 from saml2idp import __VERSION__
 
-print __VERSION__
-
 setup(
     name='saml2idp',
     version=__VERSION__,
@@ -28,8 +26,8 @@ setup(
         'M2Crypto==0.22.3'
     ],
     tests_require=[
-        'django-setuptest>=0.1.4',
-        'pysqlite>=2.5',
+        'django-setuptest>=0.1.6',
+        # 'pysqlite>=2.5',
         'BeautifulSoup==3.2.1',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
