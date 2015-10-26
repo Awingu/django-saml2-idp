@@ -51,7 +51,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
     SP_CONFIG = {
         'acs_url': AZURE_ACS_URL,
         'processor': 'saml2idp.azure.Processor',
-        'subject_function': 'saml2idp.tests.azure.get_user_subject'
+        'subject_function': 'saml2idp.tests.test_azure.get_user_subject'
     }
 
     REQUEST_DATA = REQUEST_DATA
@@ -59,7 +59,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
     def tearDown(self):
         self.SP_CONFIG.pop('attribute_function', None)
         self.SP_CONFIG['subject_function'] = (
-            'saml2idp.tests.azure.get_user_subject')
+            'saml2idp.tests.test_azure.get_user_subject')
         super(TestAzureProcessor, self).tearDown()
 
     def test_user_logged_in(self):
@@ -74,7 +74,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
         Test subject_function as string.
         """
         self.SP_CONFIG['subject_function'] = (
-            'saml2idp.tests.azure.get_user_subject')
+            'saml2idp.tests.test_azure.get_user_subject')
 
         super(TestAzureProcessor, self).test_user_logged_in()
         self.assertTrue(get_user_subject(None) in self._saml)
@@ -93,7 +93,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
         Missing subject_function.
         """
         self.SP_CONFIG['subject_function'] = (
-            'saml2idp.tests.azure.get_user_subject_doesnot_exist')
+            'saml2idp.tests.test_azure.get_user_subject_doesnot_exist')
 
         with self.assertRaises(ImproperlyConfigured):
                 super(TestAzureProcessor, self).test_user_logged_in()
