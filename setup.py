@@ -23,11 +23,9 @@ setup(
     packages=find_packages(),
     install_requires=[
         'BeautifulSoup==3.2.1',
-        'M2Crypto==0.22.3'
+        'M2Crypto==0.22.3',
     ],
     tests_require=[
-        'django-setuptest>=0.1.6',
-        # 'pysqlite>=2.5',
         'BeautifulSoup==3.2.1',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
