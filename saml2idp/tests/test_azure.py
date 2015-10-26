@@ -115,7 +115,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
         Test attribute_function as string.
         """
         self.SP_CONFIG['attribute_function'] = (
-            'saml2idp.tests.azure.get_user_idp_email')
+            'saml2idp.tests.test_azure.get_user_idp_email')
 
         self.EMAIL = get_user_idp_email(None, None)
 
