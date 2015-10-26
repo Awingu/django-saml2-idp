@@ -8,4 +8,4 @@ pep8==1.6.2
 six==1.7.3
 wsgiref==0.1.2
 
-https://github.com/Awingu/django-setuptest/archive/0.1.6-awingu.tar.gz#egg=0.1.6-awingu
+https://github.com/Awingu/django-setuptest/archive/0.1.6-awingu.tar.gz#egg=0.1.7-awingu
