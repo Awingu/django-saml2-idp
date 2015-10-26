@@ -101,7 +101,7 @@ def login_process(request):
             'SAML2IDP_CONFIG': config,
             'SAML2IDP_REMOTES': remotes,
         }
-    except ImproperlyConfigured:
+    except:
         logger.exception('Failed to load SAML2IDP configuration!')
         return HttpResponseForbidden()
 
