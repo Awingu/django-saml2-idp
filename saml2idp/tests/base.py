@@ -1,14 +1,17 @@
 """
 Tests for the Base Processor class.
 """
+import mock
+
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.test import TestCase
 from saml2idp import codex
-from saml2idp import saml2idp_metadata
+# from saml2idp import saml2idp_metadata
 
 
 class SamlTestCase(TestCase):
@@ -37,10 +40,19 @@ class SamlTestCase(TestCase):
         self.fred = User.objects.create_user(self.USERNAME,
                                              email=self.EMAIL,
                                              password=self.PASSWORD)
-        saml2idp_metadata.SAML2IDP_REMOTES['foobar'] = self.SP_CONFIG
+        self._p_config = mock.patch(
+            'saml2idp.saml2idp_metadata.get_metadata_config',
+            return_value=(
+                settings.SAML2IDP_CONFIG,
+                {
+                    'foobar': self.SP_CONFIG
+                })
+        )
+
+        self._p_config.start()
 
     def tearDown(self):
-        del saml2idp_metadata.SAML2IDP_REMOTES['foobar']
+        mock.patch.stopall()
 
     def _hit_saml_view(self, url, data={}):
         """

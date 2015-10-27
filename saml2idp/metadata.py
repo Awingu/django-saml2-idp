@@ -4,15 +4,13 @@ Query metadata from settings.
 # Django imports
 from django.core.exceptions import ImproperlyConfigured
 
-# Local imports
-from saml2idp_metadata import SAML2IDP_REMOTES
 
-
-def get_config_for_acs(acs_url):
+def get_config_for_acs(request, acs_url):
     """
     Return SP configuration instance that handles acs_url.
     """
-    for friendlyname, config in SAML2IDP_REMOTES.items():
+    saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
+    for friendlyname, config in saml2idp_remotes.items():
         if config['acs_url'] == acs_url:
             return config
 
@@ -22,11 +20,12 @@ def get_config_for_acs(acs_url):
     raise ImproperlyConfigured(msg % acs_url)
 
 
-def get_config_for_resource(resource_name):
+def get_config_for_resource(request, resource_name):
     """
     Return the SP configuration that handles a deep-link resource_name.
     """
-    for friendlyname, config in SAML2IDP_REMOTES.items():
+    saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
+    for friendlyname, config in saml2idp_remotes.items():
         links = get_links(config)
         for name, pattern in links:
             if name == resource_name:
@@ -40,16 +39,10 @@ def get_config_for_resource(resource_name):
 def get_deeplink_resources():
     """
     Returns a list of resources that can be used for deep-linking.
+
+    Note: Removed for the sake of dynamic configuration.
     """
-    resources = []
-    for key, sp_config in SAML2IDP_REMOTES.items():
-        links = get_links(sp_config)
-        for resource, patterns in links:
-            if '/' not in resource:
-                # It's a simple deeplink, which is handled by 'login_init' URL.
-                continue
-            resources.append(resource)
-    return resources
+    pass
 
 
 def get_links(sp_config):

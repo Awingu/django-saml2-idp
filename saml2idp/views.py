@@ -1,7 +1,5 @@
-# Python imports:
-import logging
-
 # Django/other library imports:
+from django.utils.log import logging
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
@@ -9,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseForbidden
 
 # saml2idp app imports:
 import saml2idp_metadata
@@ -16,6 +15,9 @@ import exceptions
 import metadata
 import registry
 import xml_signing
+
+
+logger = logging.getLogger('saml2idp')
 
 
 def _generate_response(request, processor):
@@ -88,9 +90,25 @@ def login_process(request):
     Presents a SAML 2.0 Assertion for POSTing back to the Service Provider.
     """
     # reg = registry.ProcessorRegistry()
-    logging.debug("Request: %s" % request)
+    logger.debug("Request: %s" % request)
 
-    proc = registry.find_processor(request)
+    # Set metadata config in request session!
+    try:
+        config, remotes = saml2idp_metadata.get_metadata_config(request)
+        request.session['SAML2IDP'] = {
+            'SAML2IDP_CONFIG': config,
+            'SAML2IDP_REMOTES': remotes,
+        }
+    except:
+        logger.exception('Failed to load SAML2IDP configuration!')
+        return HttpResponseForbidden()
+
+    try:
+        proc = registry.find_processor(request)
+    except exceptions.CannotHandleAssertion:
+        logger.exception('No processor to handle request!')
+        return HttpResponseForbidden()
+
     return _generate_response(request, proc)
 
 
@@ -101,12 +119,16 @@ def logout(request):
     returns a standard logged-out page. (SalesForce and others use this method,
     though it's technically not SAML 2.0).
     """
-    # first, check if we are required to bypass logout
-    logout_disabled = saml2idp_metadata.SAML2IDP_CONFIG.get(
-        'logout_disabled', False)
+    try:
+        saml2idp_config = request.session['SAML2IDP']['SAML2IDP_CONFIG']
 
-    if logout_disabled:
-        return bypass_logout()
+        # First, check if we are required to bypass logout.
+        logout_disabled = saml2idp_config.get('logout_disabled', False)
+
+        if logout_disabled:
+            return bypass_logout(saml2idp_config)
+    except:
+        pass
 
     auth.logout(request)
     tv = {}
@@ -114,13 +136,12 @@ def logout(request):
                               context_instance=RequestContext(request))
 
 
-def bypass_logout():
+def bypass_logout(saml2idp_config):
     """
     Checks if logout is disabled in IDP config, and redirects to optional url
     or directly to '/'
     """
-    redirect_url = saml2idp_metadata.SAML2IDP_CONFIG.get(
-        'logout_bypass_url', '/')
+    redirect_url = saml2idp_config.get('logout_bypass_url', '/')
 
     return redirect(redirect_url)
 
@@ -141,8 +162,9 @@ def slo_logout(request):
     # XXX: For now, simply log out without validating the request.
 
     # check if we are required to bypass logout
-    logout_disabled = saml2idp_metadata.SAML2IDP_CONFIG.get(
-        'logout_disabled', False)
+    saml2idp_config = request.session['SAML2IDP']['SAML2IDP_CONFIG']
+
+    logout_disabled = saml2idp_config.get('logout_disabled', False)
 
     if logout_disabled:
         return bypass_logout()
@@ -157,7 +179,8 @@ def descriptor(request):
     """
     Replies with the XML Metadata IDSSODescriptor.
     """
-    idp_config = saml2idp_metadata.SAML2IDP_CONFIG
+    idp_config = request.session['SAML2IDP']['SAML2IDP_CONFIG']
+
     entity_id = idp_config['issuer']
     slo_url = request.build_absolute_uri(reverse('logout'))
     sso_url = request.build_absolute_uri(reverse('login_begin'))

@@ -10,7 +10,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 # Local imports
 import exceptions
-import saml2idp_metadata
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -51,7 +50,9 @@ def find_processor(request):
     """
     Returns the Processor instance that is willing to handle this request.
     """
-    for name, sp_config in saml2idp_metadata.SAML2IDP_REMOTES.items():
+    saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
+
+    for name, sp_config in saml2idp_remotes.items():
         proc = get_processor(sp_config['processor'])
 
         try:
