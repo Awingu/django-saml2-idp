@@ -1,7 +1,5 @@
-# Python imports:
-import logging
-
 # Django/other library imports:
+from django.utils.log import logging
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured

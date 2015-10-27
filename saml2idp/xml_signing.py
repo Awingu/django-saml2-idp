@@ -50,14 +50,14 @@ def get_signature_xml(saml2idp_config, subject, reference_uri):
     logging.debug('SignedInfo XML: ' + signed_info)
 
     # RSA-sign the signed_info.
-    private_key = M2Crypto.EVP.load_key(private_key_file)
+    private_key = M2Crypto.EVP.load_key(private_key_file.encode('utf-8'))
     private_key.sign_init()
     private_key.sign_update(signed_info)
     rsa_signature = nice64(private_key.sign_final())
     logging.debug('RSA Signature: ' + rsa_signature)
 
     # Load the certificate.
-    cert_data = load_cert_data(certificate_file)
+    cert_data = load_cert_data(certificate_file.encode('utf-8'))
 
     # Put the signed_info and rsa_signature into the XML signature.
     signed_info_short = signed_info.replace(

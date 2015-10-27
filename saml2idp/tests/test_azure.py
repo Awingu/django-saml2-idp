@@ -37,6 +37,8 @@ REQUEST_DATA = {
     'RelayState': RELAY_STATE,
 }
 
+USER_SUBJECT_FUNCTION = 'saml2idp.tests.test_azure.get_user_subject'
+
 
 def get_user_subject(django_request):
     guid = '1f478d69-8585-4bee-89f6-a772287e6449'
@@ -51,15 +53,14 @@ class TestAzureProcessor(base.TestBaseProcessor):
     SP_CONFIG = {
         'acs_url': AZURE_ACS_URL,
         'processor': 'saml2idp.azure.Processor',
-        'subject_function': 'saml2idp.tests.test_azure.get_user_subject'
+        'subject_function': USER_SUBJECT_FUNCTION
     }
 
     REQUEST_DATA = REQUEST_DATA
 
     def tearDown(self):
         self.SP_CONFIG.pop('attribute_function', None)
-        self.SP_CONFIG['subject_function'] = (
-            'saml2idp.tests.test_azure.get_user_subject')
+        self.SP_CONFIG['subject_function'] = USER_SUBJECT_FUNCTION
         super(TestAzureProcessor, self).tearDown()
 
     def test_user_logged_in(self):
@@ -73,8 +74,7 @@ class TestAzureProcessor(base.TestBaseProcessor):
         """
         Test subject_function as string.
         """
-        self.SP_CONFIG['subject_function'] = (
-            'saml2idp.tests.test_azure.get_user_subject')
+        self.SP_CONFIG['subject_function'] = USER_SUBJECT_FUNCTION
 
         super(TestAzureProcessor, self).test_user_logged_in()
         self.assertTrue(get_user_subject(None) in self._saml)

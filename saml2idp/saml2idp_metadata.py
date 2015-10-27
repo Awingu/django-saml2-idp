@@ -38,7 +38,7 @@ def get_metadata_config(request):
     raise ImproperlyConfigured('Cannot load SAML2IDP configuration!')
 
 
-def import_function_from_str(self, func):
+def import_function_from_str(func):
     """
     Import function from string.
 
