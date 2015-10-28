@@ -1,12 +1,13 @@
 # core python imports:
 import base64
-import logging
 import time
 import uuid
 
 # Django and other library imports:
 from BeautifulSoup import BeautifulStoneSoup
 from django.utils.importlib import import_module
+from django.utils.log import logging
+
 
 # local app imports:
 import codex
@@ -15,6 +16,8 @@ import xml_render
 
 MINUTES = 60
 HOURS = 60 * MINUTES
+
+logger = logging.getLogger('saml2idp')
 
 
 def get_random_id():
@@ -332,7 +335,7 @@ class Processor(object):
             self._parse_request()
         except Exception, e:
             msg = 'Exception while reading request: %s' % e
-            self._logger.debug(msg)
+            logger.exception(msg)
             raise exceptions.CannotHandleAssertion(msg)
 
         self._validate_request()

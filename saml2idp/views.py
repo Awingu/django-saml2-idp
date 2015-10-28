@@ -51,8 +51,14 @@ def login_begin(request, *args, **kwargs):
     else:
         source = request.GET
     # Store these values now, because Django's login cycle won't preserve them.
-    request.session['SAMLRequest'] = source['SAMLRequest']
-    request.session['RelayState'] = source['RelayState']
+    saml_req = source.get('SAMLRequest')
+    relay_state = source.get('RelayState')
+
+    if not saml_req or not relay_state:
+        return HttpResponseForbidden()
+
+    request.session['SAMLRequest'] = saml_req
+    request.session['RelayState'] = relay_state
 
     return redirect('idp_login_process')
 

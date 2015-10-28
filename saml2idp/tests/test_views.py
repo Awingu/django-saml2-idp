@@ -60,13 +60,15 @@ class TestLoginView(ViewTestCase):
         """
         GET request without SAMLResponse data should have failed.
         """
-        self.assertRaises(KeyError, lambda: self.client.get(self.login_url))
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_empty_post(self):
         """
         POST request without SAMLResponse data should have failed.
         """
-        self.assertRaises(KeyError, lambda: self.client.post(self.login_url))
+        response = self.client.post(self.login_url)
+        self.assertEqual(response.status_code, 403)
 
     def _test_pre_redirect(self):
         self.assertFalse('SAMLRequest' in self.client.session)
