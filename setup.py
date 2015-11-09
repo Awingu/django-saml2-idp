@@ -10,8 +10,9 @@ except ImportError:
 
 from saml2idp import __VERSION__
 
+
 setup(
-    name='saml2idp',
+    name='django-saml2-idp',
     version=__VERSION__,
     description='SAML 2.0 Django Application',
     long_description=open('README.rst', 'r').read() +
