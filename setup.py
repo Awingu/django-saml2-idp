@@ -23,11 +23,11 @@ setup(
     url='http://github.com/unomena/django-saml2-idp',
     packages=find_packages(),
     install_requires=[
-        'BeautifulSoup==3.2.1',
+        'beautifulsoup4==4.4.0',
         'M2Crypto==0.22.3',
     ],
     tests_require=[
-        'BeautifulSoup==3.2.1',
+        'beautifulsoup4==4.4.0',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     cmdclass=CMDCLASS,
