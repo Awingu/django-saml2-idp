@@ -10,7 +10,7 @@ def get_config_for_acs(request, acs_url):
     Return SP configuration instance that handles acs_url.
     """
     saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
-    for friendlyname, config in saml2idp_remotes.items():
+    for friendlyname, config in list(saml2idp_remotes.items()):
         if config['acs_url'] == acs_url:
             return config
 
@@ -25,7 +25,7 @@ def get_config_for_resource(request, resource_name):
     Return the SP configuration that handles a deep-link resource_name.
     """
     saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
-    for friendlyname, config in saml2idp_remotes.items():
+    for friendlyname, config in list(saml2idp_remotes.items()):
         links = get_links(config)
         for name, pattern in links:
             if name == resource_name:
@@ -51,5 +51,5 @@ def get_links(sp_config):
     """
     links = sp_config.get('links', [])
     if type(links) is dict:
-        links = links.items()
+        links = list(links.items())
     return links

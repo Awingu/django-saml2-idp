@@ -44,7 +44,7 @@ def import_function_from_str(func):
 
     :param func: Can be a string or a function
     """
-    if isinstance(func, basestring):
+    if isinstance(func, str):
         # function supplied as a string
         mod_str, _, func_str = func.rpartition('.')
         try:

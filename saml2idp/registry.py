@@ -9,7 +9,7 @@ from django.utils.importlib import import_module
 from django.core.exceptions import ImproperlyConfigured
 
 # Local imports
-import exceptions
+from . import exceptions
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ def get_processor(dottedpath):
 
     try:
         mod = import_module(sp_module)
-    except ImportError, e:
+    except ImportError as e:
         raise ImproperlyConfigured('Error importing processors %s: "%s"'
                                    % (sp_module, e))
     try:
@@ -52,13 +52,13 @@ def find_processor(request):
     """
     saml2idp_remotes = request.session['SAML2IDP']['SAML2IDP_REMOTES']
 
-    for name, sp_config in saml2idp_remotes.items():
+    for name, sp_config in list(saml2idp_remotes.items()):
         proc = get_processor(sp_config['processor'])
 
         try:
             if proc.can_handle(request):
                 return proc
-        except exceptions.CannotHandleAssertion, e:
+        except exceptions.CannotHandleAssertion as e:
             # Log these, but keep looking.
             logger.debug('%s %s' % (proc, e))
 

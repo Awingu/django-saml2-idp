@@ -75,7 +75,7 @@ class TestLoginView(ViewTestCase):
         self.assertFalse('RelayState' in self.client.session)
 
     def _test_redirect(self, response):
-        self.assertEquals(response.status_code,
+        self.assertEqual(response.status_code,
                           HttpResponseRedirect.status_code)
         self.assertTrue(response['location'].endswith(self.login_process_url))
         self.assertEqual(self.client.session['SAMLRequest'], SAML_REQUEST)

@@ -1,5 +1,5 @@
-import base
-import xml_render
+from . import base
+from . import xml_render
 
 
 class Processor(base.Processor):

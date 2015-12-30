@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.unittest import skip
 
 # local imports:
-import base
+from . import base
 
 from saml2idp import saml2idp_metadata
 from saml2idp.azure import AZURE_ACS_URL

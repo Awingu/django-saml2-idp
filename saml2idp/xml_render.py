@@ -4,8 +4,8 @@ Functions for creating XML output.
 import logging
 import string
 
-from xml_signing import get_signature_xml
-from xml_templates import (
+from .xml_signing import get_signature_xml
+from .xml_templates import (
     ATTRIBUTE, ATTRIBUTE_STATEMENT,
     ASSERTION_GOOGLE_APPS, ASSERTION_SALESFORCE, ASSERTION_ZENDESK,
     ASSERTION_AZURE, RESPONSE, SUBJECT)
@@ -25,7 +25,7 @@ def _get_attribute_statement(params):
     # Build individual attribute list.
     template = string.Template(ATTRIBUTE)
     attr_list = []
-    for name, value in attributes.items():
+    for name, value in list(attributes.items()):
         subs = {'ATTRIBUTE_NAME': name, 'ATTRIBUTE_VALUE': value}
         one = template.substitute(subs)
         attr_list.append(one)

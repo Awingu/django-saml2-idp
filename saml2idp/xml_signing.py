@@ -6,18 +6,19 @@ import hashlib
 import logging
 import string
 # other libraries:
-import M2Crypto
+# TODO: use alternative that works with py3
+import OpenSSL
 # this app:
-# import saml2idp_metadata
-from codex import nice64
-from xml_templates import SIGNED_INFO, SIGNATURE
+from .  import saml2idp_metadata
+from .codex import nice64
+from .xml_templates import SIGNED_INFO, SIGNATURE
 
 
 def load_cert_data(certificate_file):
     """
     Returns the certificate data out of the certificate_file.
     """
-    certificate = M2Crypto.X509.load_cert(certificate_file)
+    certificate = OpenSSL.crypto.load_certificate(certificate_file)
     cert_data = ''.join(certificate.as_pem().split('\n')[1:-2])
     return cert_data
 

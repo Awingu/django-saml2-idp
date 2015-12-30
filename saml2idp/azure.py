@@ -2,9 +2,9 @@
 from BeautifulSoup import BeautifulStoneSoup
 
 # local app imports:
-import base
-import xml_render
-from exceptions import CannotHandleAssertion
+from . import base
+from . import xml_render
+from .exceptions import CannotHandleAssertion
 
 from django.core.exceptions import ImproperlyConfigured
 

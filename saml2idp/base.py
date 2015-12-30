@@ -10,9 +10,9 @@ from django.utils.log import logging
 
 
 # local app imports:
-import codex
-import exceptions
-import xml_render
+from . import codex
+from . import exceptions
+from . import xml_render
 
 MINUTES = 60
 HOURS = 60 * MINUTES
@@ -238,7 +238,7 @@ class Processor(object):
 
         :param func: Can be a string or a function
         """
-        if isinstance(func, basestring):
+        if isinstance(func, str):
             # function supplied as a string
             mod_str, _, func_str = func.rpartition('.')
             try:
@@ -307,7 +307,7 @@ class Processor(object):
         """
         acs_url = self._request_params['ACS_URL']
 
-        for name, sp_config in self._saml2idp_remotes.items():
+        for name, sp_config in list(self._saml2idp_remotes.items()):
             if acs_url == sp_config['acs_url']:
                 self._sp_config = sp_config
                 return
@@ -333,7 +333,7 @@ class Processor(object):
             self._extract_saml_request()
             self._decode_request()
             self._parse_request()
-        except Exception, e:
+        except Exception as e:
             msg = 'Exception while reading request: %s' % e
             logger.exception(msg)
             raise exceptions.CannotHandleAssertion(msg)

@@ -4,7 +4,7 @@ Tests for the dj AttributeProcessor and IdP-initiated deep-linking.
 
 # local imports:
 import os
-import base
+from . import base
 
 # Django imports:
 from django.utils.unittest import skip
