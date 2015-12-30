@@ -1,7 +1,7 @@
 """
 Tests for the Base Processor class.
 """
-import mock
+from unittest import mock
 
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 
