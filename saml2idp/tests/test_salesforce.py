@@ -2,11 +2,11 @@
 Tests for the SalesForce processor.
 """
 # standard library imports:
-import base64
+import codecs
 # local imports:
 from . import base
 
-SAML_REQUEST = base64.b64encode(
+SAML_REQUEST = codecs.encode(
     '<?xml version="1.0" encoding="UTF-8"?>'
     '<samlp:AuthnRequest '
     'AssertionConsumerServiceURL="https://login.salesforce.com" '
@@ -65,7 +65,8 @@ SAML_REQUEST = base64.b64encode(
     'hvcNAQEFBQADgYEAHP9jTz8c1r9YoOhVxbGwdPx/YU4OaEaiJFqRKrdXu4m6tHp2iW7o/7Kc8Ixk'  # noqa
     'sDB4siloTOcJ25/NsfPRoWDyvwax0aXDzsBRwJ5Qpr+ii3bUI1+QByEdxH4gZVHHu9fMG/+ePr9S'  # noqa
     'Hhil20oycE7oe0xvQEad1Hs6xHCRDbJVIr4=</ds:X509Certificate></ds:X509Data>'
-    '</ds:KeyInfo></ds:Signature></samlp:AuthnRequest>'
+    '</ds:KeyInfo></ds:Signature></samlp:AuthnRequest>'.encode('utf-8'),
+    'base64'
 )
 
 RELAY_STATE = '/home/home.jsp'

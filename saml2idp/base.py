@@ -1,10 +1,10 @@
 # core python imports:
-import base64
 import time
 import uuid
+import codecs
 
 # Django and other library imports:
-from BeautifulSoup import BeautifulStoneSoup
+from bs4 import BeautifulStoneSoup
 from django.utils.importlib import import_module
 from django.utils.log import logging
 
@@ -89,7 +89,8 @@ class Processor(object):
         """
         Decodes _request_xml from _saml_request.
         """
-        self._request_xml = base64.b64decode(self._saml_request)
+        self._request_xml = codecs.decode(
+            self._saml_request.encode('utf-8'), 'base64').decode('utf-8')
 
     def _determine_assertion_id(self):
         """
@@ -254,17 +255,21 @@ class Processor(object):
         Parses various parameters from _request_xml into _request_params.
         """
         # Minimal test to verify that it's not binarily encoded still:
-        if not self._request_xml.strip().startswith('<'):
+        if isinstance(self._request_xml, bytes):
+            request_xml = self._request_xml.decode('utf-8')
+        else:
+            request_xml = self._request_xml
+        if not request_xml.strip().startswith('<'):
             raise Exception('RequestXML is not valid XML; '
                             'it may need to be decoded or decompressed.')
 
         soup = BeautifulStoneSoup(self._request_xml)
         request = soup.findAll()[0]
         params = {}
-        params['ACS_URL'] = request['assertionconsumerserviceurl']
-        params['REQUEST_ID'] = request['id']
-        params['DESTINATION'] = request.get('destination', '')
-        params['PROVIDER_NAME'] = request.get('providername', '')
+        params['ACS_URL'] = request.get('AssertionConsumerServiceURL')
+        params['REQUEST_ID'] = request.get('id', request.get('ID'))
+        params['DESTINATION'] = request.get('Destination', '')
+        params['PROVIDER_NAME'] = request.get('ProviderName', '')
         self._request_params = params
 
     def _reset(self, django_request, sp_config=None):

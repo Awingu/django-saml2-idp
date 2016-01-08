@@ -1,5 +1,5 @@
 # Other library imports:
-from BeautifulSoup import BeautifulStoneSoup
+from bs4 import BeautifulStoneSoup
 
 # local app imports:
 from . import base
@@ -73,18 +73,18 @@ class Processor(base.Processor):
         soup = BeautifulStoneSoup(self._request_xml)
         request = soup.findAll()[0]
 
-        if request.get('assertionconsumerserviceurl', None):
+        if request.get('AssertionConsumerServiceURL', None):
             raise Exception(
                 'Invalid Azure request. AssertionConsumerServiceURL exists!')
 
         params = {}
         params['ACS_URL'] = AZURE_ACS_URL
-        params['REQUEST_ID'] = request['id']
+        params['REQUEST_ID'] = request.get('id', request.get('ID'))
 
         params['REQUEST_ISSUER'] = self._get_request_issuer(request)
 
-        params['DESTINATION'] = request.get('destination', '')
-        params['PROVIDER_NAME'] = request.get('providername', '')
+        params['DESTINATION'] = request.get('Destination', '')
+        params['PROVIDER_NAME'] = request.get('ProviderName', '')
 
         self._request_params = params
 
@@ -97,7 +97,8 @@ class Processor(base.Processor):
 
         :params saml_request: SAML XML BeautifulSoup request object.
         """
-        issuer = [i for i in saml_request.contents if 'issuer' in i.name]
+        issuer = [i for i in saml_request.contents
+                  if 'issuer' in i.name.lower()]
 
         if issuer:
             return issuer[0].getText()

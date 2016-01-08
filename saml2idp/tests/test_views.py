@@ -138,7 +138,8 @@ class TestLogoutView(ViewTestCase):
         self.assertTrue('_auth_user_id' not in self.client.session,
                         'Did not logout test user.')
 
-        self.assertTrue('logged out' in response.content)
+        self.assertTrue('logged out' in response.content.decode(
+            response.charset))
 
     def test_logout_disabled(self):
         """
@@ -152,6 +153,7 @@ class TestLogoutView(ViewTestCase):
 
         response = self.client.get(self.logout_url)
 
-        self.assertFalse('logged out' in response.content)
+        self.assertFalse('logged out' in response.content.decode(
+            response.charset))
 
         self.assertEqual(response.status_code, 302)

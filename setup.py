@@ -24,7 +24,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'beautifulsoup4==4.4.1',
-        'M2Crypto==0.22.3',
+        'pyOpenSSL==0.13.1'
     ],
     tests_require=[
         'beautifulsoup4==4.4.1',

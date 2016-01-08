@@ -2,7 +2,7 @@
 Tests for the Microsoft Azure processor.
 """
 import uuid
-import base64
+import codecs
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.unittest import skip
@@ -15,7 +15,7 @@ from saml2idp.azure import AZURE_ACS_URL
 from saml2idp.exceptions import CannotHandleAssertion
 from saml2idp.codex import convert_guid_to_immutable_id
 
-SAML_REQUEST = base64.b64encode(
+SAML_REQUEST = codecs.encode(
     '<?xml version="1.0" encoding="UTF-8"?>'
     '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" '
     'xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" '
@@ -25,7 +25,8 @@ SAML_REQUEST = base64.b64encode(
     '<saml:Issuer>urn:federation:MicrosoftOnline</saml:Issuer>'
     '<samlp:NameIDPolicy '
     'Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"/>'
-    '</samlp:AuthnRequest>'
+    '</samlp:AuthnRequest>'.encode('utf-8'),
+    'base64'
 )
 
 RELAY_STATE = (

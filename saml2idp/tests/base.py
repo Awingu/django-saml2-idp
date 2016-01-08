@@ -2,8 +2,9 @@
 Tests for the Base Processor class.
 """
 from unittest import mock
+import codecs
 
-from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
+from bs4 import BeautifulSoup, BeautifulStoneSoup
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -71,11 +72,12 @@ class SamlTestCase(TestCase):
 
         # Act:
         response = self.client.get(url, data=data, follow=True)
-        html = response.content
+        html = response.content.decode(response.charset)
         soup = BeautifulSoup(html)
         inputtag = soup.findAll('input', {'name': 'SAMLResponse'})[0]
         encoded_response = inputtag['value']
-        saml = codex.base64.b64decode(encoded_response)
+        saml = codecs.decode(
+            encoded_response.encode('utf-8'), 'base64').decode('utf-8')
         saml_soup = BeautifulStoneSoup(saml)
 
         # Set properties.
