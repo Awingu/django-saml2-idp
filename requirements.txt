@@ -1,7 +1,7 @@
 beautifulsoup4==4.4.1
 coverage==4.0.3
 Django==1.8.7
-pyOpenSSL==0.13.1
+pyOpenSSL==0.15.1
 mock==1.0.1
 pep8==1.6.2
 six==1.10.0
