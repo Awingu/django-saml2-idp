@@ -4,34 +4,26 @@ try:
     # For development. It helps running tests with --label arg.
     # Example: python setup.py test --label saml2idp.TestAzureProcessor
     from setuptest import test
-    CMDCLASS = {'test': test}
 except ImportError:
     CMDCLASS = {}
+else:
+    CMDCLASS = {
+        'test': test,
+    }
 
 from saml2idp import __VERSION__
 
+long_description = ''
+
+with open('README.rst', 'r') as readme:
+    long_description += readme.read()
+
+with open('AUTHORS.rst', 'r') as authors:
+    long_description += authors.read()
 
 setup(
-    name='django-saml2-idp',
-    version=__VERSION__,
-    description='SAML 2.0 Django Application',
-    long_description=open('README.rst', 'r').read() +
-    open('AUTHORS.rst', 'r').read(),
     author='Unomena',
     author_email='dev@unomena.com',
-    license='BSD',
-    url='http://github.com/unomena/django-saml2-idp',
-    packages=find_packages(),
-    install_requires=[
-        'beautifulsoup4==4.4.1',
-        'pyOpenSSL==0.15.1'
-    ],
-    tests_require=[
-        'beautifulsoup4==4.4.1',
-    ],
-    test_suite="setuptest.setuptest.SetupTestSuite",
-    cmdclass=CMDCLASS,
-    include_package_data=True,
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: BSD License",
@@ -41,5 +33,22 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
-    zip_safe=False,
+    cmdclass=CMDCLASS,
+    description='SAML 2.0 Django Application',
+    name='django-saml2-idp',
+    include_package_data=True,
+    install_requires=[
+        'beautifulsoup4==4.4.1',
+        'pyOpenSSL==0.15.1',
+    ],
+    license='BSD',
+    long_description=long_description,
+    packages=find_packages(),
+    tests_require=[
+        'beautifulsoup4==4.4.1',
+    ],
+    test_suite="setuptest.setuptest.SetupTestSuite",
+    url='http://github.com/unomena/django-saml2-idp',
+    version=__VERSION__,
+    zip_safe=False
 )

@@ -1,12 +1,14 @@
 language: python
+
 python:
-  - '2.7'
+  - '3.4'
+
 before_install:
   - 'sudo apt-get update'
-# command to install dependencies
+
 install:
-  - 'sudo apt-get install swig'
+  - 'sudo apt-get install git libffi-dev libssl-dev libxml2 libxslt1-dev python-virtualenv python3-dev'
   - 'pip install -r requirements.txt'
-# command to run tests
+
 script:
   - 'python setup.py test'
