@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.unittest import skip
 
 # local imports:
-from . import base
+from . import base, override_settings_file, override_settings_str
 
 from saml2idp import saml2idp_metadata
 from saml2idp.azure import AZURE_ACS_URL
@@ -50,7 +50,7 @@ def get_user_idp_email(django_request, attribute):
     return 'freddy@example.com'
 
 
-class TestAzureProcessor(base.TestBaseProcessor):
+class TestAzureProcessor:
     SP_CONFIG = {
         'acs_url': AZURE_ACS_URL,
         'processor': 'saml2idp.azure.Processor',
@@ -158,3 +158,13 @@ class TestAzureProcessor(base.TestBaseProcessor):
         immutable_id = 'aY1HH4WF7kuJ9qdyKH5kSQ=='
 
         self.assertNotEqual(immutable_id, convert_guid_to_immutable_id(guid))
+
+
+@override_settings_file
+class TestAzureProcessorWithFile(TestAzureProcessor, base.TestBaseProcessor):
+    pass
+
+
+@override_settings_str
+class TestAzureProcessorWithStr(TestAzureProcessor, base.TestBaseProcessor):
+    pass

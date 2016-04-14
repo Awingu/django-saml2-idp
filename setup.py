@@ -1,17 +1,8 @@
 from setuptools import setup, find_packages
-
-try:
-    # For development. It helps running tests with --label arg.
-    # Example: python setup.py test --label saml2idp.TestAzureProcessor
-    from setuptest import test
-except ImportError:
-    CMDCLASS = {}
-else:
-    CMDCLASS = {
-        'test': test,
-    }
-
 from saml2idp import __VERSION__
+
+from setuptest import test
+
 
 long_description = ''
 
@@ -33,7 +24,9 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     ],
-    cmdclass=CMDCLASS,
+    cmdclass={
+        'test': test,
+    },
     description='SAML 2.0 Django Application',
     name='django-saml2-idp',
     include_package_data=True,
@@ -47,7 +40,6 @@ setup(
     tests_require=[
         'beautifulsoup4==4.4.1',
     ],
-    test_suite="setuptest.setuptest.SetupTestSuite",
     url='http://github.com/unomena/django-saml2-idp',
     version=__VERSION__,
     zip_safe=False

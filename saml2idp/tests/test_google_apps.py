@@ -3,7 +3,7 @@ Tests for the Google Apps processor.
 """
 # local imports:
 from .. import codex
-from . import base
+from . import base, override_settings_file, override_settings_str
 
 SAML_REQUEST = codex.deflate_and_base64_encode(
     '<?xml version="1.0" encoding="UTF-8"?>'
@@ -36,9 +36,21 @@ REQUEST_DATA = {
 GOOGLE_APPS_ACS = 'https://www.google.com/a/example.com/acs'
 
 
-class TestGoogleAppsProcessor(base.TestBaseProcessor):
+class TestGoogleAppsProcessor:
     SP_CONFIG = {
         'acs_url': GOOGLE_APPS_ACS,
         'processor': 'saml2idp.google_apps.Processor',
     }
     REQUEST_DATA = REQUEST_DATA
+
+
+@override_settings_file
+class TestGoogleAppsProcessorWithFile(
+        TestGoogleAppsProcessor, base.TestBaseProcessor):
+    pass
+
+
+@override_settings_str
+class TestGoogleAppsProcessorWithStr(
+        TestGoogleAppsProcessor, base.TestBaseProcessor):
+    pass

@@ -6,7 +6,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'saml2idp.db',
-    }
+    },
 }
 
 ROOT_URLCONF = 'saml2idp.urls'
@@ -31,18 +31,13 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-
 ]
 
-# # SAML2IDP metadata settings
+# SAML2IDP metadata settings
 SAML2IDP_CONFIG = {
     'autosubmit': True,
     'issuer': 'http://127.0.0.1:8000/',
     'signing': True,
-    'certificate_file': os.path.join(PROJECT_ROOT,
-                                     'tests/keys/certificate.pem'),
-    'private_key_file': os.path.join(PROJECT_ROOT,
-                                     'tests/keys/private-key.pem'),
 }
 
 

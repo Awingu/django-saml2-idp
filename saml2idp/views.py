@@ -182,20 +182,17 @@ def slo_logout(request):
 
 
 def descriptor(request):
-    """
-    Replies with the XML Metadata IDSSODescriptor.
-    """
-    idp_config = request.session['SAML2IDP']['SAML2IDP_CONFIG']
+    """Replies with the XML Metadata IDSSODescriptor."""
 
-    entity_id = idp_config['issuer']
-    slo_url = request.build_absolute_uri(reverse('logout'))
-    sso_url = request.build_absolute_uri(reverse('login_begin'))
-    pubkey = xml_signing.load_cert_data(idp_config['certificate_file'])
+    config = request.session['SAML2IDP']['SAML2IDP_CONFIG']
+
     tv = {
-        'entity_id': entity_id,
-        'cert_public_key': pubkey,
-        'slo_url': slo_url,
-        'sso_url': sso_url,
+        'cert_public_key': xml_signing.load_certificate_data(config),
+        'entity_id': config['issuer'],
+        'slo_url': request.build_absolute_uri(reverse('logout')),
+        'sso_url': request.build_absolute_uri(reverse('login_begin')),
     }
-    return xml_response(request, 'saml2idp/idpssodescriptor.xml', tv,
-                        context_instance=RequestContext(request))
+
+    return xml_response(
+        request, 'saml2idp/idpssodescriptor.xml', tv,
+        context_instance=RequestContext(request))

@@ -4,7 +4,7 @@ Tests for the SalesForce processor.
 # standard library imports:
 import codecs
 # local imports:
-from . import base
+from . import base, override_settings_file, override_settings_str
 
 SAML_REQUEST = codecs.encode(
     '<?xml version="1.0" encoding="UTF-8"?>'
@@ -79,9 +79,21 @@ REQUEST_DATA = {
 SALESFORCE_ACS = 'https://login.salesforce.com'
 
 
-class TestSalesForceProcessor(base.TestBaseProcessor):
+class TestSalesForceProcessor:
     SP_CONFIG = {
         'acs_url': SALESFORCE_ACS,
         'processor': 'saml2idp.salesforce.Processor',
     }
     REQUEST_DATA = REQUEST_DATA
+
+
+@override_settings_file
+class TestSalesForceProcessorWithFile(
+        TestSalesForceProcessor, base.TestBaseProcessor):
+    pass
+
+
+@override_settings_str
+class TestSalesForceProcessorWithStr(
+        TestSalesForceProcessor, base.TestBaseProcessor):
+    pass
