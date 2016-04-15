@@ -24,8 +24,8 @@ with open(private_key_file) as pk_file:
 
 config_with_str = settings.SAML2IDP_CONFIG.copy()
 config_with_str.update({
-    'certificate_file': certificate_file,
-    'private_key_file': private_key_file,
+    'certificate_str': certificate_str,
+    'private_key_str': private_key_str,
 })
 
 override_settings_str = override_settings(SAML2IDP_CONFIG=config_with_str)
